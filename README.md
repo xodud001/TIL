@@ -1,1 +1,5 @@
 # Today I Learned
+
+
+## 알고리즘
+- [01_01 문자 찾기](./%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%20%EB%AC%B8%EC%A0%9C%ED%92%80%EC%9D%B4/%0801-01_%EB%AC%B8%EC%9E%90%20%EC%B0%BE%EA%B8%B0)
