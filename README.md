@@ -11,6 +11,7 @@
 ## 운영체제
 * [가상메모리](./%EC%9A%B4%EC%98%81%EC%B2%B4%EC%A0%9C/%EA%B0%80%EC%83%81%20%EB%A9%94%EB%AA%A8%EB%A6%AC%2C%20Virtual%20Memory.md)
 * [페이지 교체](./%EC%9A%B4%EC%98%81%EC%B2%B4%EC%A0%9C/%ED%8E%98%EC%9D%B4%EC%A7%80%20%EA%B5%90%EC%B2%B4%20%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.md)
+* [스토리지와 입출력](./%EC%9A%B4%EC%98%81%EC%B2%B4%EC%A0%9C/%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80%EC%99%80%20%EC%9E%85%EC%B6%9C%EB%A0%A5md)
 
 ## ETC
 * [oh-my-zsh에서 alias 적용하기 with Mac](./etc/oh-my-zsh%EC%97%90%20alias%20%EB%93%B1%EB%A1%9D%ED%95%98%EA%B8%B0%20with%20Mac.md)
