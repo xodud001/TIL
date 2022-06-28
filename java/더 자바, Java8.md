@@ -38,4 +38,3 @@ RunSomething runSomething = () -> System.out.println("test");
 runSomething.doIt();
 ```
 람다는 함수같이 보이지만 java에서는 이 또한 객체이다.
-
