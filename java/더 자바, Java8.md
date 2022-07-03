@@ -67,3 +67,22 @@ runSomething.doIt();
     + Object가 제공하는 기능은 기본 메소드로 제공 불가
 * 스태틱 메소드
     + 인터페이스에 스태틱 메소드를 제공할 수 있음
+
+
+# 스트림 API
+* 연속된 데이터를 처리하는 operation들의 모음
+* 데이터를 저장하고 있는 저장소(컬렌션)가 아님
+* 스트림이 처리하는 데이터 소스를 변경하지 않음
+* 중개 오펴레이션들은 근본적으로 Lazy 함
+    * 종료 오퍼레이션이 실행되기 전까지 중개 오퍼레이션들은 실행되지 않음
+
+
+## 중개 오퍼레이션
+* Stream을 리턴
+* Stateful / Stateless로 더 상세하게 구분 가능(distinct나 sorted 같이 이전 데이터를 참조해야 하는 오퍼레이션은 Stateful 오퍼레이션)
+* filter, map, limit, skip, sorted...
+
+## 종료 오퍼레이션
+* Stream을 리턴하지 않음
+* collect, allMatch, count, forEach, min, max...
+
