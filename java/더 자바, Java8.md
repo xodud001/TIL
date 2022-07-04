@@ -86,3 +86,24 @@ runSomething.doIt();
 * Stream을 리턴하지 않음
 * collect, allMatch, count, forEach, min, max...
 
+
+# 스트림 API 2
+* 걸러내기 : `filter(Predict)`
+    * 특정 조건에 만족하는 데이터만 다음 스트림으로 이동
+* 변경하기 : `map(Function) or flatMap(Function)`
+    * AClass를 BClass로 변경해서 스트림을 이어갈 수 있음
+* 생성하기 : `generate(Supplier) or Iterate(T seed, UnaryOperator)`
+    * 10부터 1씩 증가하는 무제한 숫자 스트림
+    * 랜덤 int 무제한 스트림
+* 제한하기 : `limit(long) or skip(long)`
+    * 최대 5개의 요소가 담긴 스트림을 리턴한다
+    * 앞에서 3개를 뺀 나머지 스트림을 리턴한다
+* 스트림에 있는 데이터가 특정 조건을 만족하는지 확인 : `anyMatch(), allMatch(), nonMatch()`
+    * 특정 조건에 맞는 데이터가 있는지 확인
+    * 특정 조건에 모든 데이터가 맞는지 확인
+* 개수 세기 : `count()`
+    * 마지막 스트림의 갯수 세기
+* 스트림을 데이터 하나로 뭉치기 : `reduce(identity, BiFunction), collect(), sum(), max()`
+    * 모든 문자열 이어 붙이기
+    * 최대값, 통계 구하기
+    * 모든 데이터를 하나의 Collection에 옮겨 담기
