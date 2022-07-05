@@ -87,7 +87,7 @@ runSomething.doIt();
 * collect, allMatch, count, forEach, min, max...
 
 
-# 스트림 API 2
+## 스트림 API
 * 걸러내기 : `filter(Predict)`
     * 특정 조건에 만족하는 데이터만 다음 스트림으로 이동
 * 변경하기 : `map(Function) or flatMap(Function)`
@@ -107,3 +107,20 @@ runSomething.doIt();
     * 모든 문자열 이어 붙이기
     * 최대값, 통계 구하기
     * 모든 데이터를 하나의 Collection에 옮겨 담기
+
+# Optional
+* 자바 8 이전에는 클라이언트 코드에서 Null Check를 해줬어야 함
+    * 예외를 던진다
+    * null을 리턴한다
+* 자바 8에서는 Optional이라는 타입을 이용해서 Null을 포함한 모든 Type을 감쌀 수 있음. 클라이언트 코드에 반환값이 Null일 수도 있음을 알리고 처리를 강제하게 된다.
+
+* Optional
+    * 오직 값 한 개가 들어 있을 수 도, 없을 수 도 있는 컨테이너
+
+* 주의점
+    * 리턴값으로만 쓰기를 권장
+    * Optional을 리턴하는 메소드에서 null 사용 금지
+    * 프리미티브 타입용 Optional은 따로 있음
+    * Map, Collection, Stream, Optional 같은 타입은 Optional로 감싸지 말 것
+
+
