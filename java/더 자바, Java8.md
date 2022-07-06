@@ -123,4 +123,34 @@ runSomething.doIt();
     * 프리미티브 타입용 Optional은 따로 있음
     * Map, Collection, Stream, Optional 같은 타입은 Optional로 감싸지 말 것
 
+## Optional API
+* 옵셔널 만들기
+    * Optional.of()
+    * Optional.OfNullable()
+    * Optional.empty()
 
+* Optional에 값이 있는지 없는지 확인
+    * isPresent()
+    * isEmpty(), 자바 11부터 제공
+
+* Optional에서 값 꺼내기
+    * get()
+
+* Optional에 값이 있는 경우 해당 값으로 ~ 수행
+    * ifPresent(Consumer)
+
+* Optional에 값이 있으면 반환하고 없으면 ~를 리턴
+    * orElse(T)
+
+* Optional에 값이 있으면 반환하고 없으면 ~를 하라
+    * orElseGet(Supplier)
+
+* Optional에 값이 있으면 반환하고 없으면 에러를 던져라
+    * orElseThrow()
+
+* Optional에 들어있는 값 걸러내기
+    * Optional filter(Predicate)
+
+* Optional에 들어있는 값 변환하기
+    * Optional map(Function)
+    * Optional flatMap(Function)
