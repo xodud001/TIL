@@ -154,3 +154,18 @@ runSomething.doIt();
 * Optional에 들어있는 값 변환하기
     * Optional map(Function)
     * Optional flatMap(Function)
+
+# Date와 Time
+자바 8에서 새로운 날짜와 시간 API가 생긴 이유
+* 원래 java.util.Date 클래스는 mutable 하기 때문에 thread-safe 하지 않다
+* 클래스 이름이 명확하지 않다. Date인데 시간까지 다룸
+* 버그가 발생할 여지가 많음, type-safe가 없고 월이 0부터 시작하거나 등
+* 그래서 JodaTime이란걸 쓰고는 함
+
+자바 8에서 제공하는 Date-Time API
+* JSR-310 스펙의 구현체를 제공
+* 디자인 철학
+    * Clear : API들이 명확해야 한다
+    * Fluent
+    * Immutable
+    * Extensible
