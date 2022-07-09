@@ -169,3 +169,20 @@ runSomething.doIt();
     * Fluent
     * Immutable
     * Extensible
+
+* 지금 이 순간을 기계 시간으로 표현하는 방법
+    * `Instant.now()` : 현재 UCT(GMT) 시간을 반환
+    * Universal Time Coordinated == Greenwich Mean Time
+    * `instant.atZone(ZoneId.systemDefault)` : 현재 시스템 Zone을 기준으로 시간 변환
+
+* 인류용 일시를 표현하는 방법
+    * `LocalDateTime.now()` : 현재 시스템 Zone에 해당하는 (로컬)일시를 반환
+    * `ZonedDateTime.now(ZoneId))` : 특정 Zone의 시간을 반환
+
+* 기간을 표현하는 방법
+    * `Period` : 사람용 시간 비교, ex)1월 1일부터 3월 30일 까지는 며칠인지
+    * `Duration` : 기계용 시간 비교
+
+* 포맷팅
+    * `DateTimeFormatter.ofPattern()` : `LocalDateTime.format(DateTimeFormatter)`를 이용해서 해당 패턴으로 출력 
+    
