@@ -186,3 +186,16 @@ runSomething.doIt();
 * 포맷팅
     * `DateTimeFormatter.ofPattern()` : `LocalDateTime.format(DateTimeFormatter)`를 이용해서 해당 패턴으로 출력 
     
+
+# CompletableFuture
+* Concurrent 소프트웨어
+    * 동시에 여러 작업을 할 수 있는 소프트웨어
+
+* 자바에서 지원하는 컨커런드 프로그래밍
+    * 멀티프로세싱
+    * 멀티쓰레드
+
+* 자바 멀티 쓰레드 프로그래밍
+    * `Thread / Runnable`
+
+
