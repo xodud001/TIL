@@ -198,4 +198,97 @@ runSomething.doIt();
 * 자바 멀티 쓰레드 프로그래밍
     * `Thread / Runnable`
 
+## Executors
+* 고수준 Concurrency 프로그래밍
+    * 쓰레드를 만들고 관리하는 작업을 애플리케이션에서 분리
+    * 그런 기능을 Executors에게 위임
+
+* Executors가 하는 일
+    * 쓰레드 생성 : 애플리케이션이 사용할 쓰레드 풀을 만들어 관리
+    * 쓰레드 관리 : 쓰레드 생명 주기 관리
+    * 작업 처리 및 실행 : 쓰레드로 실행할 작업을 제공할 수 있는 API 제공
+
+```java
+ExecutorService executorService = Excutors.newSingleTheadExecutor();
+executorService.submit(Runnable command);
+executorService.shutdown(); // graceful shutdown
+```
+
+## Callable과 Future
+* Callable
+    * Runnable과 유사하지만 작업의 결과를 받을 수 있다.
+
+* Future
+    * 비동기적인 작업의 현재 상태를 조회하거나 결과를 가져올 수 있다
+
+```java
+ExecutorService executorService = Excutors.newSingleTheadExecutor();
+
+Callable<String> hello = () -> "Hello";
+Future<String> submit = executorService(hello);
+submit.get() // hello가 끝나고 결과가 반환될 때 까지 대기
+```
+
+## CompletableFuture
+* 자바에서 비동기(Asynchronous) 프로그래밍을 가능케하는 인터페이스
+    * `Future`를 사용해서도 어느정도 가능했지만 하기 힘든 일들이 많았음
+
+* `Future`를 이용해서는 외부에서 작업을 완료 할 수 없었음
+* `CompletableFuture`에서는 외부에서 `complete()` 메소드를 이용해서 기본값을 반환하게 할 수 있다.
+* 작업 실행을 위해 `get()`을 호출해줘야한다.
+
+* 비동기로 작업 실행하기
+    * `runAsync()` : 리턴타입이 있는 경우, `CompletableFuture<Void>` 타입이 됨
+    * `supplyAsync()` : 리턴타입이 없는 경우
+    * `ExecutorService`를 인자로 제공함으로 써 기본으로 사용하는 `ForkJoinPool`을 대체할 수 있다
+
+* 콜백 제공
+    * `thenApply()` : 리턴 타입을 받아서 다른 리턴을 반환하는 작업 실행
+    * `thenAccept()` : 리턴 타입을 받아서 다른 작업 실행
+    * `thenRun()` : 반환값을 사용하지 않고 추가 작업이 있을 경우
+
+* 조합하기
+    * `thenCompose()`로 2개의 작업을 순차적으로 실행할 수 있다.
+    * `thenCombine()`으로 2개의 작업을 순서에 상관없이 조합해서 실행할 수 있다.
+
+* 값 가져오기
+    * `get()` : CheckedException
+    * `join()` : UncheckedException
+
+* 예외처리
+    * `exceptionally()`
+
+
+# 애노테이션의 변화
+* 두가지 큰 변화
+    * 애노테이션을 타입 선언부에도 사용 가능
+    * 애노테이션을 중복해서 사용 할 수 있음
+
+* 타입 선언부
+    * 제네릭 타입
+    * 변수 타입
+    * 매게변수 타입
+    * 예외 타입
+    * ...
+    * `@Target(ElementType.TYPE_USE)` or `@Target(ElementType.TYPE_PARAMETER)`
+
+* 타입 중복 선언
+    * 중복해서 선언할 어노테이션의 컨테이너를 만들어 줘야 함
+    * 해당 컨테이너는 자신이 담을 타입보다 `@Retention`과 `@Target`이 더 넓은 범위어야 한다
+    * `Type[] types` 형식으로 자기 자신이 감쌀 타입을 배열로 가짐
+
+# Metaspace
+* JVM의 여러 메모리 영역 중에 PermGen 메모리 영역이 없어지고 Metaspace 영역이 생김
+
+* PermGen
+    * Permanent generation. 클래스 메타데이터를 담는 곳
+    * Heap 영역에 속합
+    * 기본값으로 제한된 크기를 가지고 있음
+    
+* Metasapce
+    * 클래스 메타데이터를 담는 곳
+    * Heap 영역이 아니라 Native 영역임
+    * 기본값으로 제한된 크기를 가지고 있지 않음(필요한 만큼 계속 늘어남)
+    * -XX:MetaspaceSize=N, Metaspace 초기 사이즈 설정
+    * -XX:MaxMetaspaceSize=N, Metaspace 최대 사이즈 설정
 
