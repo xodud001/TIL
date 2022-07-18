@@ -1,4 +1,5 @@
 # Today I Learned
+하루하루 성장하는 발자취를 모아서 보기위해 작성해보는 학습일지
 
 ## Java
 * [더 자바, Java 8](./java/%EB%8D%94%20%EC%9E%90%EB%B0%94%2C%20Java8.md)
