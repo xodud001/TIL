@@ -278,3 +278,195 @@ video
 * 도큐먼트를 입력할 때 "_id" 키를 명시하지 않으면 입력된 도큐먼트에 키가 자동으로 추가
 
 ## 2.7 몽고DB 셸 사용
+* 원격 몽고 서버 접속
+```
+mongosh some-host:port/db
+```
+* mongod에 연결하지 않고 시작하기
+```
+mongosh --nodb
+conn = new Mongo("some-host:port")
+db = conn.getDB("test")
+```
+
+## 2.7.1 셸 활용 팁
+* mongosh는 단순하게 보면 자바스크립트 셸이므로 자바스크립트 문서 참조해도 됨
+* help 입력하면 셸에 내장된 도움말 볼 수 있음
+* 데이터베이스 수준의 도움말은 db.help()
+* 컬렉션 수준의 도움말은 db.foo.help()
+* 함수의 기능을 알고 싶으면 함수명을 괄호없이 입력하면 됨
+* 함수의 시그니처는 함수명.help로 확인 가능
+
+## 2.7.2 셸에서 스크립트 실행하기
+* 자바 스크립트 파일을 셸로 전달해 실행 가능
+```m
+mongosh script.js
+```
+* load 함수를 사용해서 대화형 셸에서 스크립트를 실행할 수 있음
+```m
+> load('script.js')
+```
+* 스크립트는 db 변수에 대한 접근은 가능하지만 use db나 show collections와 같은 셸 보조자는 작동하지않음
+
+# Chapter 3 도큐먼트 생성, 갱신, 삭제
+
+## 3.1 도큐먼트 삽입
+* 삽입은 몽고DB에 데이터를 추가하는 기본 방법
+* 컬렉션의 insertOne 메서드 사용
+```m
+db.movies.insertOne({"title": "Batman"})
+```
+* 도큐먼트에 "_id" 키가 자동으로 추가
+
+### 3.1.1 insertMany
+* 여러 도큐먼트를 컬렉션에 삽입하려면 insertMany로 도큐먼트 배열을 전달
+```m
+db.movies.insertMany(
+    [
+        {"title":"Iron Man"},
+        {"title":"Batman"},
+        {"title":"Hulk"}
+    ]
+)
+```
+* 몽고DB의 버전에 따라 메시지의 용량에 제한이 있으므로 한 번에 일괄 삽입 할 수 있는 크기에 제한이 있다. 
+* 제한된 용량보다 크면 드라이버가 여러 개로 분할
+* 삽입시에 정렬 or 비정렬을 선택할 수 있다. 기본값은 정렬
+* 정렬 삽입시에 중간에 에러 발생하면 해당 발생 지점부터 멈춤
+* 비정렬 삽입시에 중간에 에러 발생하면 해당 도큐먼트 제외하고 다 삽입 시도
+
+### 3.1.2 삽입 유효성 검사
+* 몽고 DB는 삽입된 데이터에 최소한의 검사를 수행
+* 도큐먼트의 기본 구조를 검사해 "_id" 필드가 존재하지 않으면 추가하고, 모든 도큐먼트는 16메가바이트보다 작아야 하므로 크기 검사를 함
+    * [MongoDB 6.0](https://www.mongodb.com/docs/manual/core/document/) 기준으로 아직 16 megabyte. 600쪽 짜리 책이 3MB 정도 함
+* 도큐먼트의 Binary JSON(BSON) 크기를 보려면 셸에서 object.bsonsize(doc)를 실행
+* [MongoDB 6.0](https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/bsonSize/?_ga=2.178847844.1309917206.1662172054-1070121506.1661954868&_gac=1.222154986.1662172054.Cj0KCQjw08aYBhDlARIsAA_gb0f7LPQVKS-MrGyglm8EGGAAKebt9V5XPTbslA_4WUHoHt0I31dwMA0aAj7REALw_wcB)에서 bsonsize 보는 방법
+
+### 3.1.3 삽입
+* 몽고DB 3.0 이전 버전에서는 삽입 할 때 insert 사용
+* 호환성 지원 때문에 사용 할 수는 있지만 insertOne or insertMany를 사용
+
+## 3.2 도큐먼트 삭제
+* deleteOne과 deleteMany를 이용해서 삭제 가능
+```m
+db.movies.deleteOne({"_id": ObjectId("6312b034452fd87b69e1978c")})
+```
+* deleteOne은 필터에 의해 여러개가 걸리면 첫 번째 도큐먼트만 삭제
+* deleteMany는 필더에 걸린거 전부 삭제
+* 몽고DB 3.0 이전 버전에서는 삭제할 때 remove 사용
+* 호환성 지원 때문에 사용 할 수는 있지만 deleteOne or deleteMany를 사용
+
+### 3.2.1 drop
+* deleteMany를 사용해 컬렉션의 모든 도큐먼트 삭제
+* 전체 컬렉션을 삭제하려면 drop을 사용하는 편이 더 빠름
+```m
+db.movies.drop()
+```
+
+## 3.3 도큐먼트 갱신
+* 도큐먼트는 updateOne, updateMany, replaceOne과 같은 갱신 메서드를 사용해 변경
+* updateOne과 updateMany는 필터 도큐먼트를 첫 번째 매개변수로, 변경 사항을 설정하는 수정자 도큐먼트를 두 번째 매개변수로 사용
+* replaceOne도 첫 번째 매개변수로 필터를 사용하지만 두 번째 매개변수는 필터와 일치하는 도큐먼트를 교체할 도큐먼트
+* 갱신은 원자적으로 이뤄짐. 두 개의 갱신이 동시에 발생하면 서버에 먼저 도착한 요청이 적용된 후 다음 요청이 적용
+
+### 3.3.1 도큐먼트 치환
+* replaceOne은 도큐먼트를 새로운 것으로 완전히 치환함
+* replaceOne의 필터에 2개 이상의 도큐먼트가 걸리면 갱신 실패. 고유한 값으로 시도해야됨
+* "_id" 값이 컬렉션 기본 인덱스의 기초를 형성하므로 필터에 "_id"를 사용해도 효율적이다
+
+### 3.3.2 갱신 연산자
+* 부분 갱신에는 원자적 갱신 연산자를 사용
+* 갱신 연산자는 키를 변경, 추가, 제거하고 배열과 내장 도큐먼트를 조작하는 복잡한 갱신 연산을 지정하는 데 사용하는 특수키다
+
+**`$Set` 제한자 사용하기**
+* `$Set`은 필드 값을 설정.
+* 필드가 존재하지 않으면 새 필드 생성
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {
+        "$set": {
+            "description":"Beeem!"
+        }
+    }
+)
+```
+
+**증가와 감소**
+* `$inc` 연산자는 이미 존재하는 키의 값을 변경하거나 새 키를 생성하는 데 사용.
+* 키 값은 무조건 숫자여야 함
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {"$inc": {"score":50}}
+)
+```
+
+**배열 연산자**
+* 요소 추가하기 : `$push`는 배열이 이미 존재하면 배열 끝에 요소를 추가하고, 존재하지 않으면 새로운 배열을 생성
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {"$push": {"actors": "toni"}}
+)
+```
+* `$push`에 `$each` 제한자를 사용하면 작업 한 번으로 값을 여러 개 추가할 수 있음
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {"$push": {"actors":{"$each": ["toni", "stark"]}}}
+)
+```
+* `$slice`를 이용해서 도큐먼트 내에 큐를 생성해 top N 목록을 만들 수 있음
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {"$push": {"actors":{"$each": ["toni", "stark"],
+                    "$slice": -10}}}
+)
+```
+* `$sort`를 이용해서 정렬된 상태로 추가할 수 있음
+* 1 : 오름차순
+* -1 : 내림차순
+```m
+db.movies.updateOne(
+    {"title":"Iron Man"}, 
+    {
+        "$push": {
+            "actors":
+            {
+                "$each": [{"name":"toni", "age":30}, 
+                            {"name":"startk", "age":40}],
+                "$slice": -10,
+                "$sort": {"age": -1}
+            }
+        }
+    }
+)
+```
+* 배열을 집합으로 사용하기
+* `$ne`를 사용하면 값을 추가하면서 중복을 제거
+```m
+db.movies.updateOne({"actors": {"$ne": "toni"}}, {"$push": {"actors": {"name":"Jone", "age": 20}}})
+```
+* `$addToSet`을 사용하면 `$ne`가 작동하지 않을 때나 무슨 일이 얼아났는지 더 잘 알수 있을 때 유용
+* `$addToSet`을 사용하면 배열에 중복을 피할 수 있음
+```m
+db.movies.updateOne({"_id":ObjectId("6312b034452fd87b69e1978d")}, {"$addToSet": {"actors": {"name":"Jone", "age": 20}}})
+```
+* `$pop`: 배열에서 요소 제거하기
+    * {"$pop":{"key":1}} : 배열의 마지막 요소부터 제거
+    * {"$pop":{"key":-1}} : 배열의 첫 요소부터 제거
+* `$pull`: 주어진 조건에 맞는 배열 요소를 모두 제거
+```
+db.lists.insertOne({"todo":["dishes", "laundry", "dry cleaning"]})
+db.lists.updateOne({}, {"$pull":{"todo":"laundry"}})
+```
+**배열의 위치 기반 변경**
+* 위치를 이용하거나 위치 연산자($)를 사용해서 변경
+* 배열 인덱스는 기준이 0
+* 배열 요소는 인덱스를 도큐먼트의 키처럼 사용
+
+
+
+
