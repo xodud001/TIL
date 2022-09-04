@@ -466,7 +466,79 @@ db.lists.updateOne({}, {"$pull":{"todo":"laundry"}})
 * 위치를 이용하거나 위치 연산자($)를 사용해서 변경
 * 배열 인덱스는 기준이 0
 * 배열 요소는 인덱스를 도큐먼트의 키처럼 사용
+```m
+// post를 찾아서 0번째 comments의 votes를 1 증가
+db.blog.updateOne({"post": post_id},
+    {"$inc":{"comments.0.votes": 1}})
+```
+* `$`: 쿼리 도큐먼트와 일치하는 배열 요소 및 요소의 위치를 알아내서 갱신하는 위치 연산자
+```m
+db.blog.updateOne({"comments.autho": "John"},
+        {"$set": {"comments.$.author": "Jim}})
+```
 
+**배열 필터를 이용한 갱신**
+* arrayFilters를 이용해 특정 조건에 맞는 배열 요소를 갱신할 수 있음
+* `elem`: 배열의 각 일치 요소에 대한 식별자
+```m
+// 투표값이 -5 이하인 경우 hidden에 true 설정
+db.blog.updateOne(
+    {"post": post_id},
+    {"$set": {"comments.$[elem].hidden": true}},
+    {
+        arrayFilters: [ {"elem.votes": { $lte: -5 }}]
+    }
+)
+```
 
+### 3.3.3 갱신 입력
+* 갱신 조건에 맞는 도큐먼트가 존재하지 않을 때는 쿼리 도큐먼트와 갱신 도큐먼트를 합쳐서 새로운 도큐먼트를 생성
+* 조건에 맞는 도큐먼트가 있으면 일반적인 갱신 수행
+* race condition을 피할 수 있음
+* updateOne과 updateMany의 세 번째 매개변수는 옵션 도큐먼트. 여기에 갱신 입력을 지정
+```
+db.analytics.updateOne({"url":"/blog"}, {"$inc": {"pageviews": 1}},
+    {"upsert": true})
+```
+* `$setOnInsert`: 도큐먼트가 삽입될 때 필드 값을 설정하는 데만 사용하는 연산자
+```m
+db.users.updateOne({}, {"$setOnInsert": {"createdAt": new Date()}},
+    {"upsert": true})
+```
 
+### 3.3.4 다중 도큐먼트 갱신
+* `updateMany`: 조건에 맞는 모든 도큐먼트 수정
+* 사용법은 `updateOne`이랑 동일
+
+# Chapter 4 쿼리
+
+## 4.1 find 소개
+* 몽고DB에서 find 함수는 쿼리에 사용
+* 쿼리는 컬렉션에서 도큐먼트의 서브셋을 반환
+* 빈 쿼리 도큐먼트({})는 컬렉션 내 모든 것과 일치
+* 쿼리 도큐먼트에 여러 키/값 쌍을 추가해 검색을 제한할 수 있다
+```m
+// "age"가 27인 모든 도큐먼트
+db.users.find({"age": 27})
+```
+```m
+// "username"이 "joe"인 모든 도큐먼트
+db.users.find({"age": 27})
+```
+```m
+// "age"가 27 AND "username"이 "joe"인 모든 도큐먼트
+db.users.find({"age": 27})
+```
+
+### 4.1.1 반환받을 키 지정
+* 원하는 키/값 정보는 두 번째 매개변수에 원하는 키를 지정하면 됨
+```m
+// 컬렉션에서 "username"과 "email" 키의 값만 추출
+db.users.find({}, {"username": 1, "email": 1})
+```
+* "_id" 키는 지정하지 않아도 항상 반환됨
+* 특정 키/값 쌍을 제외한 결과를 얻을 수 있음
+```m
+db.users.find({}, {"fatal_weakness" : 0})
+```
 
