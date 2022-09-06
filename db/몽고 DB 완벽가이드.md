@@ -542,3 +542,112 @@ db.users.find({}, {"username": 1, "email": 1})
 db.users.find({}, {"fatal_weakness" : 0})
 ```
 
+### 4.1.2 제약 사항
+* 데이터베이스에서 쿼리 도큐먼트 값은 반드시 상수여야 함. 도큐먼트 내 다른 키의 값을 참조할 수 없음
+
+## 4.2 쿼리 조건
+
+### 4.2.1 쿼리 조건절
+* < : "$lt"
+* <= : "$lte"
+* > : "$gt"
+* >= : "$gte"
+```m
+db.users.find({"age": {"$gte": 18, "$lte" : 30}})
+```
+```m
+start = new Date("01/01/2007")
+db.users.find({"registered": {"$lt": start}})
+```
+* != : "$ne"
+```m
+db.users.find({"username": {"$ne": "joe"}})
+```
+
+### 4.2.2 OR 쿼리
+* "$in" : 포함. 하나의 키를 다양한 값과 비교
+* "$nin" : 미포함. 하나의 키를 다양한 값과 비교
+* "$or" : 여러 키를 주어진 값과 비교
+```m
+// 포함
+db.raffle.find({"ticket_no": {"$in": [725, 542, 390]}})
+// 미포함
+db.raffle.find({"ticket_no": {"$nin": [725, 542, 390]}}) 
+// or
+db.raffle.find({"$or": [{"ticket_no": 725}, {"winner": true}]})
+```
+
+### 4.2.3 $not
+* "$not"은 메타 조건절이며 어떤 조건에도 적용할 수 있음
+```
+db.users.find({"id_num": {"$not" : {"$mod": [5, 1]}}})
+```
+
+## 4.3 형 특정 쿼리
+* 도큐먼트 내에서 다양한 데이터형 사용 가능. 일부 데이터형은 쿼리 시 형에 특정하게 작동
+
+### 4.3.1 null
+* null은 스스로와 일치하는 것을 찾음
+```m
+db.c.find({"y": null})
+```
+### 4.3.2 정규 표현식
+* "$regex"는 쿼리에서 패턴 일치 문자열을 위한 정규식 기능을 제공
+```m
+db.users.find({"name": {"$regex": /joe/i }})
+```
+* 자바스크립트에서 정규표현식이 제대로 동작하는지 확인 하는게 좋음
+* 접두사 정규 표현식에 쿼리 인덱스 활용 가능
+
+### 4.3.3 배열에 쿼리하기
+* 배열 요소 쿼리는 스칼라 쿼리와 같은 방식으로 동작하도록 설계
+```m
+db.food.insertOne({"fruit": ["apple", "banana", "paech"]})
+db.food.find({"fruit": "banana"})
+```
+* $all 연산자 : 2개 이상의 배열 요소가 일치하는 배열을 찾을 때 사용
+```m
+db.food.find({"fruit": {$all: ["banana","peach"]}})
+```
+* $size 연산자 : 특정 크기의 배열을 쿼리하는 조건
+```m
+db.food.find({"fruit": {"$size": 3}})
+```
+* $slice 연산자 : 배열 요소의 부분집합을 반환받을 수 있음
+```m
+// 처음 10개
+db.blog.posts.findOne(criteria, {"comments": {"$slice" : 10}})
+// 마지막 10개
+db.blog.posts.findOne(criteria, {"comments": {"$slice" : -10}})
+// 24 ~ 33째 까지 반환
+db.blog.posts.findOne(criteria, {"comments": {"$slice" : [23, 10]}})
+```
+* $ : 배열 요소의 인덱스를 알고 있다면 인덱스가 일치하는 배열 요소의 반환.
+```m
+db.blog.posts.findOne({"comments.name": "bob", {"comments.$": 1} })
+```
+
+**배열 및 범위 쿼리의 상호작용**
+```m
+{"x": 5}
+{"x": 15}
+{"x": 25}
+{"x": [5, 25]}
+```
+* 위와 같은 데이터가 있을 때 아래처럼 쿼리하면 15, [5, 25]가 나옴
+```m
+db.xs.find({"x": {$gt: 10, $lt: 20}})
+```
+* $elemMatch로 막을 수 있지만 배열이 아니면 일치시키지 않음
+```m
+db.xs.find({"x": {$elemMatch: {$gt: 10, $lt: 20}}})
+```
+
+### 4.3.4 내장 도큐먼트에 쿼리하기
+* 도큐먼트 전체를 대상으로 하는 방식과 도큐먼트 내 키/값 쌍 각각을 대상으로 하는 방식으로 나뉨
+```m
+// 전체 도큐먼트를 대상으로 하는 쿼리
+db.people.find({"name":{"first":"joe", "last":"Schmoe"}})
+// 내장 도큐먼트에 쿼리하는 방식
+db.people.find({"name.first": "joe", "name.last":"Schmoe"})
+```
