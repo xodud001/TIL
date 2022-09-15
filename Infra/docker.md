@@ -36,7 +36,7 @@
     * `docker run`에서 --env 옵션으로 설정
     * Dockerfile에서 EVN 옵션으로 환경변수 이름과 기본값을 지정할 수 있다
         * `ENV [NAME] [DEFAULT-VALUE]`
-    * Dockerfile 내부에서 환경 변수를 변수처럼 사용하려면 `$[NAME]` 문법을 사용해서 참조
+    * Dockerfile 내부에서 환경 변수를 변수처럼 사용하려면 `$[NAME]` 문법을 사용해서 참조
         * `EXPOSE $PORT`
 
 # 네트워킹 : 컨테이너 통신

@@ -1143,3 +1143,59 @@ db.createCollection("my_collection", {"capped": true, "size": 100000})
     - conn : 서버가 열어놓은 연결의 개수
     - time : 통계가 찍힌 시간
     
+# Chapter 19 몽고DB 보안 소개
+* 몽고DB 클러스터와 몽고DB 클러스터가 보유한 데이터를 보호하려면 아래 보안 조치를 사용
+    - 권한 활성화와 인증 적용
+    - 통신 암호화
+    - 데이터 암호화
+
+## 19.1 몽고DB 인증과 권한
+* 인증은 사용자의 신원을 확인하는 용도로 사용
+* 권한은 확인된 사용자의 리소스와 작업에 대한 접근을 결정
+
+## 19.1.1 인증 메커니즘
+* 몽고DB 클러스터에서 권한을 활성화하면, 인증이 적용되고 사용자는 역할에 따라 권한이 부여된 작업만 수행
+* 몽고DB 커뮤니티 버전은 SCRAM과 x.509 인증서 인증을 지원
+* x.509 디지털 인증서는 널리 사용되는 x.509 공개 키 기반 표준을 사용해 공개 키가 제출자의 것인지 검증
+
+## 19.1.2 권한
+* 몽고DB에 사용자를 추가할 때는 특정 데이터베이스에 사용자를 생성해야 한다. 이는 사용자의 인증 데이터베이스이다. 어느 데이터베이스든 이 용도로 사용 가능
+* 사용자명과 인증 데이터베이스는 사용자의 고유 식별자 역할을 함
+* 사용자의 권한은 인증 데이터베이스에 국한되지 않음
+* 사용자를 생성할 때 사용자가 접근 권한을 가져야하는 작업을 지정
+* 리소스는 클러스터, 데이터베이스, 컬렉션을 포함
+* 내장된 역할
+    - read : 모든 비시스템 컬렉션 및 system.indexes, system.js, system.namespace와 같은 시스템 컬렉션의 데이터를 읽음
+    - readWirte : read와 동일한 권한과 모든 비시스템 컬렉션 및 system.js 컬렉션의 데이터를 수정할 수 있음
+    - dbAdmin : 스키마 관련 작업, 인덱싱, 통계 수집과 같은 관리 작업을 수행
+    - userAdmin : 현재 데이터베이스에서 역할과 사용자를 생성하고 수정
+    - dbOwner : readWrite, dbAdmin, userAdmin 역할이 부여한 권한을 결합
+    - clusterManager : 클러스터상에서 관리와 모니터링 작업을 수행
+    - clusterMonitor : 몽고DB 클라우드 매니저와 옵스 매니저 모니터링 에이전트 같은 모니터링 도구에 대한 읽기 전용 접근을 제공
+    - hostManage : 서버를 모니터링하고 관리
+    - clusterAdmin : clusterManager + clusterMonitor + hostManager + dropDatabase
+    - backup : 몽고DB 클라우드 매니저 백업 에이전트 혹은 옵스 매니저 백업 에이전트를 사용하는 권한
+    - restore : system.profile 컬렉션 데이터를 포함하지 않는 백업으로부터 데이터를 복원하는 데 필요한 권한을 제공
+    - readAnyDatabase : local과 config를 제외한 모든 데이터베이스에서 read와 동일한 권한과 더불어 클러스터 전체에 대한 listDatabases 작업 제공
+    - readWriteAndDatabase : local과 config를 제외한 모든 데이터베이스에서 readWrite와 동일한 권한과 더불어 클러스터 전체에 대한 listDatabases 작업 제공
+    - userAdminAndDatabase : local과 config를 제외한 모든 데이터베이스에서 userAdmin과 동일한 권한과 더불어 클러스터 전체에 대한 listDatabases 작업 제공
+    - dbAdminAndDatabase : local과 config를 제외한 모든 데이터베이스에서 dbAdmin과 동일한 권한과 더불어 클러스터 전체에 대한 listDatabases 작업 제공
+    - root : 모든 권한
+* 사용자 정의 역할을 만들 수도 있음
+
+### 19.1.3 멤버와 클라이언트를 인증하기 위해 x.509 인증서 사용하기
+* 클러스터를 보호하려면 클러스터 내에서 통신하는 모든 서비스가 서로 인증해야 함
+
+* x.509의 경우 신뢰할 수 있는 인증기관(CA)이 모든 인증서에 서명해야 한다
+* 서명은 인증서의 명명된 소유자(subject)가 해당 인증서와 연결된 공개 키를 소유함을 인증
+* CA는 중간자 공격을 방지하는 신뢰할 수 있는 제3자 역할을 함
+
+* 각 클러스터 멤버와 클라이언트는 CA에서 서명한 자체 인증서가 있음
+* 몽고DB 배포는 단일 인증 기관에서 생성하고 서명한 유효한 인증서를 사용해야 한다
+* 몽고DB에서 x.509 인증과 함께 사용하려면 멤버 인증서에 아래 속성이 있어야 함
+    - 단일 CA는 클러스터 멤버에 대해 모든 x.509 인증서를 발급해야 함
+    - 멤버 인증서의 제모에 있는 고유 이름(DN, Distinguished Name)은 조직(O, Organization), 조직 단위(OU, Organization Unit), 도메인 구성 요소(DC, Domain Component) 속성 중 적어도 하나에 비어있지 않은 값을 지정해야 함
+    - O, OU, DC 속성은 다른 클러스터 멤버에 대한 인증서의 속성과 일치해야 함
+    - 일반 이름(CN, Common Name) 혹은 소유자 대체 이름(Subject Alternative Name)은 다른 클러스터 멤버가 사용하는 서버의 호스트명과 일치해야 함
+
+
