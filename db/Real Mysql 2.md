@@ -146,3 +146,77 @@ mysql> SELECT DATE_ADD(NOW(), INTERVAL -1 DAY) AS yesterday;
     * `QUARTER` : 분기
     * `WEEK` : 주
 
+#### 11.3.3.5 타임스탬프 연산(UNIX_TIMESTAMP, FROM_UNIXTIME)
+* UNIX_TIMESTAMP() 함수는 1970-01-01 00:00:00으로부터 경과된 초의 수를 반환
+* FROM_UNIXTIME() 함수는 타임스탬프 값을 DATETIME 타입으로 변환하는 함수
+
+#### 11.3.3.6 문자열 처리(RPAD, LPAD / RTRIM, LTRIM, TRIM)
+* RPAD()와 LPAD() 함수는 문자열 좌측 또는 우측에 문자를 덧붙여서 지정된 길이의 문자열로 만드는 함수
+* RTRIM()과 LTRIM() 함수는 문자열의 우측 또는 좌측에 연속된 공백 문자를 제거하는 함수
+* TRIM()은 RTRIM()과 LTRIM()를 동시에 수행
+
+#### 11.3.3.7 문자열 결합(CONCAT)
+* 여러 개의 문자열을 연결해서 하나의 문자열로 반환하는 함수
+
+#### 11.3.3.9 값의 비교와 대체(CASE WHEN ... THEN ... END)
+* CASE WHEN은 SWITCH 구문과 같은 역할을 함
+* CASE로 시작하고 END로 끝남.
+* WHEN .. THEN .. 은 필요한 만큼 반복
+```sql
+SELECT emp_no, first_name,
+    CASE gender WHEN 'M' THEN 'Man'
+                WHEN 'F' THEN 'Woman'
+                ELSE 'Unknown' END AS gender
+FROM employees;
+```
+
+#### 11.3.3.10 타입의 변환(CAST, CONVERT)
+* Prepared Statement를 제외하면 SQL은 텍스트 기반으로 작동하기 때문에 SQL에 포함된 모든 입력값은 문자열처럼 취급된다
+* 이때 명시적으로 타입의 변환이 필요하다면 CAST() 함수를 이용
+* CAST() 함수를 통해 변환할 수 있는 데이터 타입
+    - DATE
+    - TIME
+    - DATETIME
+    - BINARY
+    - CHAR
+    - DECIMAL
+    - SIGNED
+    - INTEGER
+    - UNSIGNED
+    - INTEGER
+```sql
+SELECT CAST('1234' AS SIGNED INTEGER);
+SELECT CAST('2000-01-01' AS DATE);
+```
+* CONVERT() 함수는 타입을 변환하는 용도와 문자열의 문자 집합을 변환하는 용도
+```sql
+SELECT CONVERT(1-2, UNSIGNED)
+SELECT CONVERT('ABC' USING 'utf8mb4')
+```
+
+#### 11.3.3.11 이진값과 16진수 문자열 변환
+* HEX() 함수는 이지낪을 16진수 문자열로 변환
+* UNHEX() 함수는 16진수의 문자열을 이진값으로 변환
+
+#### 11.3.3.12 암호화 및 해시 함수(MD5, SHA, SHA2)
+* MD5(), SHA1(), SHA2() 함수는 각각 128, 160, 224~512비트 해시 값을 반환
+
+#### 11.3.3.13 처리 대기
+* SLEEP(second) 함수는 프로그래밍 언어나 셸 스크립트 언어에서 제공하는 sleep 기능을 수행
+```sql
+SELECT SLEEP(1.5) FROM employees;
+```
+* SLEEP() 함수는 레코드의 건수만큼 호출.
+
+#### 11.3.3.14 벤치마크
+* BENCHMARK() 함수는 디버깅이나 간단한 함수의 성능 테스트용으로 유용
+* 두 개의 동일 기능을 상대적으로 비교 분석하는 용도로 사용
+
+## 11.4 SELECT
+* SELECT는 여러 개의 테이블로부터 데이터를 조합해서 빠르게 가져와야 하기 때문에 여러 개의 테이블을 어떻게 읽을 것인가에 많은 주의릴 기울여야 함
+
+## 11.4.1 SELECT 절의 처리 순서
+* 드라이빙 테이블 기준으로 드리븐 테이블1, 2과 같이 WHERE 적용 및 조인 실행 -> GROUP BY -> DISTINCT -> HAVING 조건 저용 -> ORDER BY - LIMIT
+* 인덱스를 이용해 처리할때는 ORDER BY나 GROUP BY 절이 있더라도 불필요하므로 생략
+* GROUP BY 없이 ORDER BY만 있는 경우 조인보다 먼저 ORDER BY가 적용됨
+

@@ -895,7 +895,7 @@ db.createCollection("my_collection", {"capped": true, "size": 100000})
 
 # Chapter 7 집계 프레임워크
 
-// TODO
+//-TODO-
 
 # Chapter 8 트랜잭션
 * 몽고 DB는 여러 작업, 컬렉션, 데이터베이스, 도큐먼트 및 샤드에서 ACID 호환 트랜잭션을 지원
@@ -1198,4 +1198,13 @@ db.createCollection("my_collection", {"capped": true, "size": 100000})
     - O, OU, DC 속성은 다른 클러스터 멤버에 대한 인증서의 속성과 일치해야 함
     - 일반 이름(CN, Common Name) 혹은 소유자 대체 이름(Subject Alternative Name)은 다른 클러스터 멤버가 사용하는 서버의 호스트명과 일치해야 함
 
+## 19.2 몽고DB 인증 및 전송 계층 암호화에 대한 지침
+* 루트 CA와 중간(intermediate) CA를 설정
+* 서버 및 클라이언트 인증서에는 중간 CA를 사용해 서명하는 것을 권장
 
+### 19.2.1 CA 수립하기
+* 인증기관 문제 해결 방법
+    - 독립 인증 기관을 생성하고 유지
+    - 다른 TLS/SSL 공급 업체에서 생성한 인증서를 사용
+
+//-TODO-
