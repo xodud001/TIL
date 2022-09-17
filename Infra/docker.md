@@ -47,3 +47,57 @@
 * `docker network create [name]` 명령으로 네트워크 그룹을 생성할 수 있다.
 * 같은 네트워크로 묶인 컨테이너들은 url을 각 컨테이너의 이름으로 대신할 수 있다. docker가 해당 컨테이너의 이름으로 IP 주소를 변환해 준다
 
+# Docker Compose
+* docker run과 docker build 명령을 대체할 수 있는 도구
+* 다수의 docker run과 docker build 명령을 단 하나의 구성 파일로 가짐
+* 모든 서비스나 컨테이너를 동시에 바로 시작하면서 필요하면 모든 이미지를 빌드하는 오케스트레이션 명령 set이다
+* 하나의 명령을 이용해서 모든 것을 시작하거나 중지할 수 있음
+* Service는 실제로 컨테이너를 가리킨다
+
+## Compose 파일 만들기
+* compose 내의 서비스들은 같은 네트워크로 구성됨
+* 프로젝트 폴더에 `docker-compose.yaml` 파일 생성
+
+```docker-compose
+version: 'version'
+services:
+    service1:
+        image: 'image'
+        container_name: name
+        volumes:
+            - v1:/data
+        environment:
+            key: value
+            or
+            - name=value
+        env_file:
+            - path
+        network:
+            - name
+    service2:
+        build: path
+        ports:
+            - 80:80
+        depends_on:
+            - service1
+    service3:
+        build:
+            context: path
+            dockerfile: filename
+            args:
+                some-arg: value
+        ports:
+            - 3306:3306
+        # 아래 2개는 -it와 같은 기능
+        stdin_open: true
+        tty: true
+
+volumes:
+    v1:
+```
+
+## compose 실행
+* docker-compose up -d 명령으로 detached 모드로 실행
+* docker-compose down 하면 다 종료되면서 삭제
+* docker-compose down -v 불륨까지 삭제
+
