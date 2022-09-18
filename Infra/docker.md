@@ -101,3 +101,14 @@ volumes:
 * docker-compose down 하면 다 종료되면서 삭제
 * docker-compose down -v 불륨까지 삭제
 
+# 컨테이너 배포
+* 로컬에서 개발하던것을 프로덕션으로 옮겨도 그대로 실행 됨
+## 주의점
+* Bind Mounts을 production에서 사용 하면 안됨
+* 개발 환경과는 다른 설정이 필요함
+* 여러 컨테이너 프로젝트는 여러 호스트 or 리모트 머신에 나눠져야 한다
+
+## 간단한 배포 순서
+1. Local에서 image build
+2. build된 이미지를 저장소에 push
+3. Remote에서 저장소에 저장된 이미지를 pull and run
