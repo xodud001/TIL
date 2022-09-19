@@ -112,3 +112,6 @@ volumes:
 1. Local에서 image build
 2. build된 이미지를 저장소에 push
 3. Remote에서 저장소에 저장된 이미지를 pull and run
+
+## ECS(Elastic Container Service)
+* AWS에서 제공하는 컨테이너 관리를 도와주는 서비스
