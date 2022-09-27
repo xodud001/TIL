@@ -278,3 +278,19 @@ SELECT SLEEP(1.5) FROM employees;
 * 문자열 칼럼이나 숫자 칼럼을 비교할 때는 반드시 그 타입에 맞는 상숫값을 사용할 것을 권장
 
 #### 11.4.3.3 날짜 비교
+
+##### 11.4.3.3.1 DATE 또는 DATETIME과 문자열 비교
+* DATE 또는 DATETIME 타입의 값과 문자열을 비교할 때는 문자열 값을 자동으로 DATETIME 타입의 값으로 변환해서 비교 수행
+
+##### 11.4.3.3.2 DATE와 DATETIME의 비교
+* DATETIME 값에서 시간 부분만 떼어 버리고 비교하는 쿼리
+```sql
+SELECT COUNT(*) FROM employees WHERE hire_date > DATE(NOW());
+```
+##### 11.4.3.3.3 DATETIME과 TIMESTAMP의 비교
+* DATE나 DATETIME 타입의 값과 TIMESTAMP 값을 비교할 때는 TIMESTAMP 값을 비교할 타입으로 변환후 비교
+
+##### 11.4.3.4 Short-Circuit Evaludation
+* 여러 개의 표현식이 AND 또는 OR 논리 연산자로 연결된 경우 선행 표현식의 결과에 따라 후행 표현식을 평가할지 말지 결정하는 최적화
+
+
