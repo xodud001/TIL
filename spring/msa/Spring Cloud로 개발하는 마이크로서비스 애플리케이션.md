@@ -69,3 +69,27 @@
     - 서비스 간의 결합도를 낮추어 변화에 능동적으로 대응
     - 각 독립된 서비스가 노출된 REST API를 사용
 
+# Service Discovery
+* 서비스들이 다른 마이크로 서비스를 검색하기 위해서 사용
+* Spring Cloud의 Eureka Server 사용
+
+
+# API Gateway Service
+* Micro Service로 개발하게 되면 클라이언트 단에서 각각의 서버와 통신해야 하는 문제가 발생
+* API Gateway를 이용해서 클라이언트에게 단일 연결점을 제공할 수 있다
+* 지원하는 기능
+    - 인증 및 권한 부여
+    - 서비스 검색 통합
+    - 응답 캐싱
+    - 정책, 회로 차단기 및 QoS 다시 시도
+    - 속도 제한
+    - 부하 분산
+    - 로깅, 추적, 상관 관계
+    - 헤더, 쿼리 문자열 및 청구 변환
+    - IP허용 목록에 추가
+
+* Spring Ribbon이나 Zuul을 이용
+    - Spring 2.4부터 Maintanence mode 됨
+    - Spring Cloud Loadbalancer나 Gateway를 사용
+
+
