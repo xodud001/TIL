@@ -93,3 +93,41 @@ public enum App{
 
 }
 ```
+
+
+## 팩토리 메소드 패턴
+* 어떤 객체를 생성하는 책임을 추상정인 인터페이스로 감싸는 것
+
+### 구현 방법
+* 생성할 객체의 Interface와 이 객체를 생성을 담당하는 책임의 Interface를 만듬
+```java
+public interface Product{
+
+}
+
+public interface ProductFactory{
+    Product createProduct();
+}
+```
+* 생성을 담당하는 책임의 Interface를 상속받은 Concrete 클래스를 생성 후 해당 클래스에서 생성할 객체의 Concrete 클래스를 생성해서 반환
+```java
+public class ConcreteProduct implements Product{
+
+}
+
+public class ConcreateProductFactory implements ProductFactory{
+
+    public Product createProduct(){
+        return new ConcreteProduct();
+    }
+}
+```
+* 
+
+### 장단점
+**장점**
+* 생성의 책임을 분리해서 커플링을 루즈하게 할 수 있음
+* OCP 원칙을 지키는데 사용할 수 있음
+
+**단점**
+* 클래스가 늘어남
