@@ -131,3 +131,87 @@ public class ConcreateProductFactory implements ProductFactory{
 
 **단점**
 * 클래스가 늘어남
+
+## 추상 팩토리 패턴
+* 서로 관련있는 여러 객체를 만들어주는 인터페이스
+* 구체적으로 어떤 클래스의 인스턴스를 사용하는지 감출 수 있음
+
+
+### 구현 방법
+* 자동차의 바퀴은 타이어와 내부의 휠의 조합으로 이루어져 있음
+```java
+public interface Wheel{
+
+    private Tire tire;
+    private InnerWheel innerWheel;
+}
+
+public interface Tire{
+
+}
+
+public interface InnerWheel{
+
+}
+```
+
+* 바퀴를 만드는 Factory 클래스를 만들고 구체 클래스를 생성
+```java
+public interface WheelFactory{
+    Wheel createWheel();
+}
+
+public class NormalWheelFactory{
+    public Wheel createWheel(){
+        Tire tire = new NormalTire();
+        InnerWheel innerWheel = new NormalInnerWheel();
+        return new NormalWheel(tire, innerWheel)
+    }
+}
+```
+
+* 위 코드에서 Tire와 InnerWheel을 만드는 Factory가 필요함 -> 추상 팩토리
+```java
+public interface WheelPartsFactory{
+
+    Tire createTire();
+    InnerWheel createInnerWheel();
+}
+
+public class NormalWheelPartsFactory implements WheelPartsFactory{
+    public Tire createTire(){
+        return new NormalTire();
+    }
+
+    public InnerWheel createInnerWheel(){
+        return new InnerWheel();
+    }
+}
+```
+
+* 이제 `NormalWheelFactory`에서 `WheelPartsFactory` 사용해서 `Wheel`을 만들도록 수정
+```java
+public class NormalWheelFactory{
+
+    private WheelPartsFactory wheelPartsFactory
+
+    public Wheel createWheel(){
+        Tire tire = wheelPartsFactory.createTire();
+        InnerWheel innerWheel = wheelPartsFactory.createInnerWheel();
+        return new NormalWheel(tire, innerWheel)
+    }
+}
+```
+* 이후에 새로운 Parts들이 구현되어야 한다면 WheelPartsFactory를 새로 구현해서 DI만 해주면 됨
+
+### 팩토리 메소드 패턴과의 차이점
+* 모양과 효과는 비슷
+    - 둘 다 구체적인 객체 생성 과정을 추상화한 인터페이스를 제공
+
+* 관점이 다름
+    - 팩토리 메소드 패턴 : 팩토리를 구현하는 방법에 초점
+    - 추상 팩토리 패턴 : 팩토리를 사용하는 방법에 초점
+
+* 목적이 다름
+    - 팩토리 메소드 패턴: 구체적인 객체 생성 과정을 하위 또는 구체적인 클래스로 옮기는 것이 목적
+    - 추상 팩토리 패턴: 관련있는 여러 객체를 구체적인 클래스에 의존하지 않고 만들 수 있게 해주는 것이 목적
