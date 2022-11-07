@@ -215,3 +215,48 @@ public class NormalWheelFactory{
 * 목적이 다름
     - 팩토리 메소드 패턴: 구체적인 객체 생성 과정을 하위 또는 구체적인 클래스로 옮기는 것이 목적
     - 추상 팩토리 패턴: 관련있는 여러 객체를 구체적인 클래스에 의존하지 않고 만들 수 있게 해주는 것이 목적
+
+## 빌더 패턴
+* 객체를 생성하기 위한 생성자가 여러개가 있을 때 유연한 생성을 위해서 상황에 맞게 조합해서 객체를 생성할 수 있게 해줌
+
+### 구현 방법
+```java
+public class AClass{
+    int a;
+    int b;
+
+    public AClass(int a, int b){
+        this.a = a;
+        this.b = b
+    }
+
+    public static class AClassBuilder{
+        int a;
+        int b;
+
+        public AClass build(){
+            return new AClass(this.a, thia.b);
+        }
+
+        public AClassBuilder a(int a){
+            this.a = a;
+            return this;
+        }
+
+        public AClassBuilder b(int b){
+            this.b = b;
+            return this;
+        }
+    }
+}
+```
+
+### 장단점
+**장점**
+* 생성 순서가 복잡한 인스턴스를 단순화 할 수 있음
+* 불완전한 객체를 사용하지 못하게 안정장치를 만들 수 있다
+
+**단점**
+* 클래스의 양이 많아진다
+* 구조가 복잡해진다
+
