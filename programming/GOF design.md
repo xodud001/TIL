@@ -260,3 +260,35 @@ public class AClass{
 * 클래스의 양이 많아진다
 * 구조가 복잡해진다
 
+## 프로토타입 패턴
+* 기존 인스턴스를 복제하여 새로운 인스턴스를 만드는 방법
+
+### 구현 방법
+* 자바에서는 `Cloneable` 인터페이스를 구현하고 `Object`의 `clone()` 메소드를 재정의하면 된다.
+```java
+public class AClass implements Cloneable {
+
+    private int a;
+    private int b;
+
+    public AClass(int a, int b){
+        this.a = a;
+        this.b = b;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new AClass(this.a ,this.b);
+    }
+}
+```
+
+### 장단점
+**장점**
+* 복잡한 객체를 만드는 과정을 숨길 수 있음
+* 기존 객체를 복제하는 과정이 새 인스턴스를 만드는 것보다 비용적인 면에서 효율적일 수 있음
+* 추상적인 타입을 리턴할 수 있다
+
+**단점**
+* 복제한 객체를 만드는 과정 자체가 복잡할 수 있다 
+
