@@ -292,3 +292,49 @@ public class AClass implements Cloneable {
 **단점**
 * 복제한 객체를 만드는 과정 자체가 복잡할 수 있다 
 
+# 구조 관련 디자인 패턴
+
+## 어댑터 패턴
+* 기존 코드를 클라이언트가 사용하는 인터페이스의 구현체로 바꿔주는 패턴
+* 클라이언트가 사용하는 인터페이스를 따르지 않는 기존 코드를 재사용할 수 있게 해준다
+
+
+### 구현 방법
+* 인터페이스 A가 있고 B 클래스가 있다고 가정
+```java
+public interface AInterface(){
+
+    String getSomething();
+}
+
+public class BClass implements AInterface {
+    public String getValue(){
+        return "value"
+    }
+}
+```
+
+* 이때 클라이언트에서 A 인터페이스를 사용하는데 B를 구현체로 쓰고 싶을때 어댑터를 구현
+```java
+public class Adaptor implements AInterface{
+
+    private final BClass b;
+
+    public Adaptor(BClass b){
+        this.b = b;
+    }
+
+    String getSomething(){
+        return b.getValue();
+    }
+}
+```
+
+### 장단점
+**장점**
+* 어댑티를 변경하지 않고 확장이 가능하다
+* 기존 코드의 책임과 변환의 책임을 분리해서 관리할 수 있다
+
+**단점**
+* 어댑터 코드 때문에 클래스가 많아지고 구조가 복잡해짐
+
