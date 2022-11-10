@@ -338,3 +338,54 @@ public class Adaptor implements AInterface{
 **단점**
 * 어댑터 코드 때문에 클래스가 많아지고 구조가 복잡해짐
 
+## 브릿지 패턴
+* 추상적인 것과 구체적인 것을 분리하여 연결하는 패턴
+
+### 구현 방법
+* 추상클래스와 인터페이스가 있고 추상클래스가 인터페이스를 가짐
+```java
+public abstract class AbstractClass {
+
+    private NormalInterface interface;
+
+    public AbstractClass(NormalInterface interface){
+        this.interface = interface;
+    }
+
+    public void do(){
+        this.interface.getValue();
+    }
+}
+
+public interface NormalInterface {
+
+    String getValue();
+
+}
+```
+
+* 위와 같은 구조를 만들어 놓고 각 구현체들을 만들면 됨
+```java
+public class ConcreteClass extends AbstractClass {
+
+    public ConcreteClass(NormalInterface interface){
+        super(interface);
+    }
+
+}
+
+public class NormalClass implements NormalInterface {
+
+    public String getValue(){
+        return "Normal";
+    }
+}
+```
+
+### 장단점
+**장점**
+* 추상적인 코드(행동, 메시지) 만으로 구조를 만들고 코드 변경 없이도 독립적으로 확장할 수 있다
+* 추상적인 코드와 구체적인 코드를 분리할 수 있다
+
+**단점**
+* 계층 구조가 늘어나 복잡도가 증가
