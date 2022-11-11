@@ -389,3 +389,49 @@ public class NormalClass implements NormalInterface {
 
 **단점**
 * 계층 구조가 늘어나 복잡도가 증가
+
+## 컴포짓 패턴
+* 구조가 트리구조일 때 구현 가능
+* 그룹 전체와 개별 객체를 동일하게 처리할 수 있는 패턴
+* 클라이언트 입장에서 전체 or 부분을 동일한 컴포넌트로 인식할 수 있는 계층 구조를 만듬
+
+### 구현 방법
+* 클라이언트 입장에서 보는 Component가 필요
+```java
+public interface Component {
+
+    int getPrice();
+}
+```
+
+* 해당 컴포넌트를 구현한 구현체들이 필요
+```java
+public class Item implements Component{
+
+    private int price;
+
+    @Override
+    public int getPrice(){
+        return price;
+    }
+}
+
+public class Bag implements Component{
+
+    private List<Component> items; // Bag에서 Item을 가지는게 아니라 Component를 가짐
+
+    @Override
+    public int getPrice(){
+        return items.stream().mapToInt(Component::getPrice).sum();
+    }
+}
+```
+
+### 장단점
+**장점**
+* 복잡한 트리 구조를 편하게 사용
+* 다형성과 재귀 활용
+* 클라이언트 코드를 변경하지 않고 새로운 타입을 추가할 수 있다
+
+**단점**
+* 트리를 만들어야 하기 때문에 지나친 일반화가 될 수 있음
