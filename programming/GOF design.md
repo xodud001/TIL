@@ -435,3 +435,63 @@ public class Bag implements Component{
 
 **단점**
 * 트리를 만들어야 하기 때문에 지나친 일반화가 될 수 있음
+
+## 데코레이터 패턴
+* 기존 코드를 변경하지 않고 부가 기능을 추가하는 패턴
+* 상속이 아닌 위임을 사용해서 보다 유연하게 부가 기능을 추가하는 것도 가능
+
+### 구현 방법
+* 기준이 되는 interface와 기본 concrete class가 필요
+```java
+public interface Printer{
+
+    void print(String value);
+}
+
+public class  v implements Printer {
+
+    @Override
+    public void print(String value){
+        System.out.println(value);
+    }
+}
+```
+* 기능을 확장 할 때 상속을 사용하면 1개 밖에 상속이 안되기 때문에 유연하게 만들지 못함. 
+* 그래서 위임을 이용해서 interface를 멤버로 가짐
+```java
+public class DoubleWritePrinter implements Printer {
+
+    public final Printer printer;
+
+    public DoubleWritePrinter(Printer printer){
+        this.printer = printer;
+    }
+
+    @Override
+    public void print(String value){
+        printer.print();
+        printer.print();
+    }
+}
+```
+
+* 클라이언트 측에서는 Printer 인터페이스만 바라보고 구체 클래스를 주입할 때 아래와 같이 조합해서 생성
+```java
+public class App {
+
+    public static void main(String[] args){
+        Printer printer = new DoubleWritePrinter(new DefaultPrinter());
+
+        printer.print();
+    }
+}
+```
+
+### 장단점
+**장점**
+* 단일 책임 원칙을 지키는데 도움을 줌
+* 기능의 조합이 필요할 때 새로운 클래스를 만들지 않고 기능을 조합할 수 있다
+* 컴파일 타임이 아닌 런타임에 동적으로 기능을 변경할 수 있다
+
+**단점**
+* 데코레이터를 생성할 때 조합하는 코드가 복잡할 수 있다
