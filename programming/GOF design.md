@@ -511,3 +511,85 @@ public class App {
 
 **단점**
 * 구체적인 의존성이 서브시스템 코드에 남아 있음
+
+## flyweight pattern
+* 객체를 가볍게 만들어 메모리 사용을 줄이는 패턴
+* 자주 변하는 속성과 변하지 않는 속성을 분리하고 재사용하여 메모리 사용량을 줄임
+
+### 구현 방법
+* 다양한 속성을 가진 Character 클래스가 있음
+```java
+public class Character {
+
+    private char value;
+    private String color;
+    private String fontFamily;
+    private int fontSize;
+
+    public Character(char value, String color, String fontFamily, int fontSize) {
+        this.value = value;
+        this.color = color;
+        this.fontFamily = fontFamily;
+        this.fontSize = fontSize;
+    }
+}
+```
+* 해당 클래스의 속성 중에서 fontFamily와 fontSize를 Font라는 클래스로 분리
+* 여러 곳에서 공통적으로 사용되기 때문에 immutable하게 생성
+```java
+public final class Font {
+
+    private final String fontFamily;
+    private final int size;
+
+    public Font(String fontFamily, int size) {
+        this.fontFamily = fontFamily;
+        this.size = size;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public int getSize() {
+        return size;
+    }
+}
+```
+
+* 해당 클래스를 생성하는 Factory를 생성
+```java
+public class FontFactory {
+
+    private Map<String, Font> cache = new HashMap<>();
+
+    public Font getFont(String font){
+        if (cache.containsKey(font)){
+            return cache.get(font);
+        } else {
+            String[] token = font.split(":");
+            Font newFont = new Font(token[0], Integer.parseInt(token[1]));
+            cache.put(font, newFont);
+            return newFont;
+        }
+    }
+}
+```
+
+* 위의 팩토리를 이용해서 Font를 만들고 Character 생성
+```java
+FontFactory fontFactory = new FontFactory();
+
+Character c1 = new Character('h', "white", fontFactory.getFont("Nanum:12"));
+Character c2 = new Character('e', "white", fontFactory.getFont("Nanum:12"));
+Character c3 = new Character('l', "white", fontFactory.getFont("Nanum:12"));
+Character c4 = new Character('l', "white", fontFactory.getFont("Nanum:12"));
+Character c5 = new Character('o', "white", fontFactory.getFont("Nanum:12"));
+```
+
+### 장단점
+**장점**
+* 애플리케이션에서 사용하는 메모리를 줄일 수 있음
+
+**단점**
+* 구조가 복잡해진다
