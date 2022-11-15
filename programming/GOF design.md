@@ -593,3 +593,76 @@ Character c5 = new Character('o', "white", fontFactory.getFont("Nanum:12"));
 
 **단점**
 * 구조가 복잡해진다
+
+## 프록시 패턴
+* 특정 객체에 대한 접근을 제어하거나 기능을 추가할 수 있는 패턴
+* 초기화 지연, 접근 제어, 로깅, 캐싱 등 다양하게 사용
+
+### 구현 방법
+**상속을 이용한 방법**
+```java
+public class Service{
+
+    public void call(){
+        System.out.println("call");
+    }
+}
+
+public class ServiceProxy extends Service{
+
+    @Override
+    public void call(){
+        // do something
+        super.call();
+    }
+}
+```
+```java
+Service service = new ServiceProxy();
+service.call();
+```
+
+**인터페이스를 이용한 방법**
+```java
+public interface Service{
+
+    void call();
+}
+
+public class DefaultService implements Service {
+
+    @Override
+    public void call(){
+        System.out.println("call");
+    }
+}
+
+public class ServiceProxy implements Service {
+
+    private final Service service;
+
+    public ServiceProxy(Service service){
+        this.service = service;
+    }
+
+    @Override
+    public void call(){
+        // do something
+        service.call();
+    }
+}
+```
+```java
+Service defaultService = new DefaultService();
+Service service = new ServiceProxy();
+service.call();
+```
+
+### 장단점
+**장점**
+* 기존 코드를 변경하지 않고 새로운 기능을 추가할 수 있음
+* 기존 코드가 해야 하는 일만 유지할 수 있음
+* 기능 추가 및 초기화 지연 등으로 다양하게 활용할 수 있다
+
+**단점**
+* 코드의 복잡도가 증가
