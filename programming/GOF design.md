@@ -666,3 +666,74 @@ service.call();
 
 **단점**
 * 코드의 복잡도가 증가
+
+# 행동 관련 디자인 패턴
+
+## 책임 연쇄 패턴
+* 요청을 보내는 쪽과 요청을 처리하는 쪽을 분리하는 패턴
+* 핸들러 체인을 사용해서 요청을 처리
+
+### 구현 방법
+* 핸들러에 해당하는 추상 클래스를 생성
+```java
+public abstract class Handler {
+
+    private Handler handler;
+
+    public Handler(Handler handler){
+        this.handler = handler;
+    }
+
+    public void handle(Request request){
+        if(handler != null){
+            this.handler.handle();
+        })
+    }
+}
+```
+
+* 위의 추상클래스 기반의 구체 클레스 구현
+```java
+public class AHandler extends Handler {
+
+    public AHandler(Handler handler){
+        super(handler);
+    }
+
+    @Override
+    public void handle(Request request){
+        System.out.println(request);
+        super.handle(request)
+    }
+}
+
+public class BHandler extends Handler {
+
+    public AHandler(Handler handler){
+        super(handler);
+    }
+
+    @Override
+    public void handle(Request request){
+        System.out.println(request);
+        super.handle(request)
+    }
+}
+```
+
+* A와 B를 연쇄적으로 호출하도록 구성해서 구현
+```java
+Handler aHandler = new AHandler(null);
+Handler bHandler = new BHandler(aHandler);
+
+bHandler.handle(new Request());
+```
+
+### 장단점
+**장점**
+* 클라이언트 코드를 변경하지 않고 새로운 핸들러를 체인에 추가할 수 있음
+* 각각의 핸들러가 단일 책임을 유지할 수 있다
+* 순서를 강제할 수 있다
+
+**단점**
+* 디버깅시에 코드의 흐름을 파악하기 어렵다
