@@ -737,3 +737,80 @@ bHandler.handle(new Request());
 
 **단점**
 * 디버깅시에 코드의 흐름을 파악하기 어렵다
+
+## 커맨드 패턴
+* 요청을 캡슐화 하여 호출자(invoker)와 수신자(receiver)를 분리하는 패턴
+* 요청을 처리하는 방법이 바뀌더라도, 호출자의 코드는 변경되지 않음
+
+### 구현 방법
+* 호출하는 쪽(invoker)과 호출 되는 쪽(receiver)의 코드가 있음
+```java
+public class Invoker {
+    private final Receiver receiver;
+
+    public Invoker(Receiver receiver){
+        this.receiver = receiver;
+    }
+
+    public void invoke(){
+        this.receiver.do();
+    }
+}
+
+public class Receiver {
+
+    public void do(){
+        System.out.println("call");
+    }
+}
+```
+
+* Invoker에서는 Command만 바라보고 Command를 구현한 클래스에서 Receiver를 호출하도록 함
+```java
+public interface Command {
+
+    void execute();
+}
+
+public class Invoker {
+    private final Command command;
+
+    public Invoker(Command command){
+        this.command = command;
+    }
+
+    public void invoke(){
+        this.command.execute();
+    }
+}
+
+public class ReceiverCommand implements Command {
+
+    private final Receiver receiver;
+
+    public ReceiverCommand(Receiver receiver){
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void execute(){
+        this.receiver.do();
+    }
+}
+```
+
+* Invoker에게 ReceiverCommand를 구현체로 넘겨주고 실행한다
+```java
+Invoker invoker = new Invoker(new ReceiverCommand(new Receiver));
+invoker.invoke();
+```
+
+### 장단점
+**장점**
+* 기존 코드를 변경하지 않고 새로운 커맨드 추가 가능
+* 수신차의 코드가 변경되어도 호출자의 코드는 변경되지 않음
+* 커맨드 객체를 다양한 방법으로 활용할 수 있다
+
+**단점**
+* 복잡하고 클래스가 많아짐
+
