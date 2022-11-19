@@ -814,3 +814,68 @@ invoker.invoke();
 **단점**
 * 복잡하고 클래스가 많아짐
 
+## 인터프리터 패턴
+* 자주 등장하는 문제를 간단한 언어로 정의하고 재사용하는 패턴
+* 반복되는 문제 패턴을 언어 또는 문법으로 정의하고 확장할 수 있음
+
+### 구현 방법
+* 대상이 될 Expression과 대상을 파싱할 Parser가 필요함
+* Expression은 TerminalExpression과 NonTerminalExpression로 구분
+    - TerminalExpression는 재귀 호출이 없음
+    - NonTerminalExpression는 같은 타입의 필드를 가져 Abstract Syntax Tree 구조를 만들어나감
+* Parser는 Abstract Syntax Tree 구조의 Expression을 받아서 파싱하고 결과를 반환
+* 반환된 Expression에 Context를 전달하고 실행
+
+### 장단점
+**장점**
+* 자주 등장하는 문제 패턴을 언어와 문법으로 정의
+* 기존 코드를 변경하지 않고 새로운 Expression을 추가할 수 있다
+
+**단점**
+* 복잡한 문법을 표현하려면 Expression과 Parser가 복잡해진다
+
+## 이터레이터 패턴
+* 집합 객체 내부 구조를 노출시키지 않고 순회 하는 방법을 제공하는 패턴
+* 집합 객체를 순회하는 클라이언트 코드를 변경하지 않고 다양한 순회 방법을 제공
+
+### 구현 방법
+* 기본적으로 자바에는 Iterator라는 인터페이스가 있어서 Collection들을 Iterator로 변환해서 사용하면 된다
+```java
+List<Object> objs = new ArrayList();
+Iterator<Object> itr = objs.iterator();
+
+while(itr.hasNext()){
+    Object obj = itr.next();
+}
+```
+* 원본의 Collection에 추가로 정렬이나 필터링 같은 추가 기능이 들어가야 한다면 새로운 ConcreteIterator 클래스를 만들고 Iterator를 상속하고, 생성자로 받은 Iterator에 추가 기능들을 처리해서 처리한다.
+```java
+public class ConcreteIterator implements Iterator {
+
+    private final Iterator<Object> internalIterator;
+
+    public ConcreteIterator(Iterator iterator){
+        //do something to iterator
+        this.internalIterator = iterator;
+    }
+
+    @Override
+    public boolean hasNext(){
+        return this.internalIterator.hasNext();
+    }
+
+    @Override
+    public Object next(){
+        return this.internalIterator.next();
+    }
+}
+```
+
+### 장단점
+**장점**
+* 집합 객체가 가지고 있는 객체들에 손쉽게 접근이 가능하다
+* 일관된 인터페이스를 사용해 여러 형태의 집합 구조를 순회할 수 있다
+
+**단점**
+* 클래스가 늘어나고 복잡도가 증가한다
+
