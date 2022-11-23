@@ -76,9 +76,22 @@
 
 ## Web
 * [HTTP 완벽 가이드 책 정리](./web/HTTP%20%EC%99%84%EB%B2%BD%20%EA%B0%80%EC%9D%B4%EB%93%9C.md)
+
+## Database
+* [몽고 DB 완벽가이드 책 정리](./db/%EB%AA%BD%EA%B3%A0%20DB%20%EC%99%84%EB%B2%BD%EA%B0%80%EC%9D%B4%EB%93%9C.md)
+* [Real Mysql 2](./db/Real%20Mysql%202.md)
+
+## Infra
+* [docker](./Infra/docker.md)
+* [kafka 기초](./Infra/kafka%20%EA%B8%B0%EC%B4%88.md)
+* [아파치 카프카 애플리케이션 프로그래밍 with 자바](./Infra/%EC%95%84%ED%8C%8C%EC%B9%98%20%EC%B9%B4%ED%94%84%EC%B9%B4%20%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%20with%20%EC%9E%90%EB%B0%94)
+
 ## test
 * [JUnit5](./test/Junit5.md)
 * [Mockito](./test/Mockito.md)
+
+## spring
+* [Spring Cloud로 개발하는 마이크로서비스 애플리케이션](./spring/msa/Spring%20Cloud%EB%A1%9C%20%EA%B0%9C%EB%B0%9C%ED%95%98%EB%8A%94%20%EB%A7%88%EC%9D%B4%ED%81%AC%EB%A1%9C%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98.md)
 
 ## Blog
 * [Validation - 요청 그렇게 하는거 아닌데](https://velog.io/@xodud001/Validation-%EC%9A%94%EC%B2%AD-%EA%B7%B8%EB%A0%87%EA%B2%8C-%ED%95%98%EB%8A%94%EA%B1%B0-%EC%95%84%EB%8B%8C%EB%8D%B0)
