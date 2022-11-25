@@ -40,3 +40,38 @@
 | 스트림 데이터는 한정되지 않은 데이터로 시작 데이터와 끝 데이터가 명확히 정해지지 않은 데이터
 
 
+## 카프카 설치
+* 카프카를 활용하기 위해서는 주키퍼와 카프카 브로커가 필요
+* 주키퍼는 분산 코디네이션 서비스를 제공하는 오픈소스
+* 분산 코디네이션은 분산 시스템 내부에 상태 정보를 저장하고 데이터를 key/value 저장소로 저장 및 제공하는 서비스를 지칭
+* 주키퍼와 카프카 브로커는 JVM 위에서 돌아가는 애플리케이션으로 heap memory를 지정해야 함
+
+### JVM 설치
+```shell
+sudo yum install -y java-1.8.0-openjdk-devel.x86_64
+```
+### 바이너리 다운로드
+```shell
+wget https://archive.apache.org/dist/kafka/2.5.0/kafka_2.12-2.5.0.tgz
+tar xvf kafka_2.12-2.5.0.tgz
+```
+
+### 카프카 브로커 힙 메모리 설정
+```shell
+export KAFKA_HEAP_OPTS="-Xmx300m -Xms300m"
+echo $KAFKA_HEAP_OPTS
+
+==================================
+-Xmx300m -Xms300m
+```
+
+### 주키퍼 실행
+```shell
+bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
+```
+
+### 카프카 실행
+```shell
+bin/kafka-server-start.sh -daemon config/server.properties
+tail -f logs/server.log
+```
