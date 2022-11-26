@@ -70,8 +70,70 @@ echo $KAFKA_HEAP_OPTS
 bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
 ```
 
+## 카프카 설정파일 수정
+```text 
+# config/server.properties
+adverties.listener=PALINTEXT://host.name:9092
+```
+
 ### 카프카 실행
 ```shell
 bin/kafka-server-start.sh -daemon config/server.properties
 tail -f logs/server.log
+```
+
+## 연결 확인
+* 원격의 브로커 서버의 정보를 받아오는 테스트
+```shell
+bin/kafka-broker-api-versions.sh --bootstrap-server host.name:9092
+```
+
+## 커맨드 라인 툴 - kafka-topics.sh
+* 토픽과 관련된 명령을 실행할 수 있음
+
+### 토픽 생성
+* 기본적인 방법
+```shell
+bin/kafka-topics.sh \
+--create \ # 토픽 생성 명령을 명시
+--bootstrap-server host:9092 \ # 브로커 지정
+--topic hello.kafka # 토픽 이름 지정
+```
+* 다양한 옵션을 이용해서 생성
+```shell
+bin/kafka-topics.sh \
+--create \
+--bootstrap-server host:9092 \
+—-partitions 3 \
+—-replication-factor 1 \
+—-config retention.ms=172800000 \
+--topic hello.kafka 
+```
+
+### 토픽 리스트 조회
+```shell
+bin/kafka-topics.sh --bootstrap-server my-kafka:9092 --list
+```
+
+### 토픽 상세 조회
+```shell
+bin/kafka-topics.sh --bootstrap-server my-kafka:9092 \
+--describe --topic hello.kafka
+```
+
+### 토픽 옵션 수정
+* 파티션 개수 변경
+```shell
+bin/kafka-topics.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka \
+--alter \
+--partitions 4
+```
+
+* 토픽 삭제 리텐션 기간 변경
+```shell
+bin/kafka-configs.sh --bootstrap-server my-kafka:9092 \
+--entity-type topics \
+--entity-name hello.kafka \
+--alter --add-config retention.ms=86400000
 ```
