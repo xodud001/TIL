@@ -137,3 +137,113 @@ bin/kafka-configs.sh --bootstrap-server my-kafka:9092 \
 --entity-name hello.kafka \
 --alter --add-config retention.ms=86400000
 ```
+
+## kafka-console-producer.sh
+- 토픽에 데이터를 넣을 수 있음
+- 토픽에 넣는 데이터는 레코드라고 부르며 메시지 key와 메시지 value로 이루어져 있음
+- 키는 없이 전송될 수 있고 자바의 null로 기본 설정되어 브로커로 전송된다
+- 레코드 값은 UTF-8을 기반으로 Byte로 변환되고 ByteArraySerializer로만 직렬화됨
+```bash
+bin/kafka-console-producer.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka
+>hello
+>kafka
+>0
+>1
+>2
+>3
+```
+
+- 메시지 키를 가지는 레코드를 전송하기 위해서 몇 가지 추가 옵션을 작성해야 됨
+```bash
+bin/kafka-console-producer.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka \
+--property "parse.key=true" \ # 메시지 키를 추가하겠다 명시
+--property "key.separator=:" # 키와 메시지를 구분하는 구분자를 선언. 기본은 Tab
+>key1:no1
+>key2:no2
+>key3:no3
+```
+```bash
+bin/kafka-console-producer.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka \
+--property parse.key=true \
+--property key.separator=":" 
+```
+
+- 메시지 키가 null인 경우에는 프로듀서가 파티션으로 전송할 때 레코드 배치 단위로 라운드 로빈 전송
+- 메시지 키가 존재하는 경우에는 키의 해시값을 작성하여 존재하는 파티션 중 한개에 할당. 때문에 메시지 키가 동일한 경우에는 동일한 파티션으로 전송
+
+## kafka-console-consumer.sh
+- 브로커로부터 데이터를 받아올 때 사용
+
+```bash
+bin/kafka-console-consumer.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka \
+--from-beginning # 토픽에 저장된 가장 처음 데이터부터 추출
+```
+
+- `--property` 옵션을 사용해서 메시지 키와 메시지 값을 확인
+
+```bash
+bin/kafka-console-consumer.sh --bootstrap-server my-kafka:9092 \
+--topic hello.kafka \
+--property print.key=true \
+--property key.separator="-" \
+--group hello-group
+--from-beginning
+```
+
+- consumer에서 데이터를 받아올 때 producer에서 생성한 순서대로 받고 싶을 때 가장 좋은 방법은 파티션 1개로 구성된 토픽을 만드는 것
+
+## kafka-consumer-groups.sh
+
+- 컨슈머 그룹은 컨슈머를 동작할 때 컨슈머 그룹 이름을 지정하면 생성
+- 생성된 컨슈머 그룹의 리스트 확인
+
+```bash
+bin/kafka-consumer-groups.sh --bootstrap-server my-kafka:9092 --list
+```
+
+- 컨슈머 그룹 이름을 토대로 컨슈머 그룹이 어떤 토픽의 데이터를 가져가는지 확인
+
+```bash
+bin/kafka-consumer-groups.sh --bootstrap-server my-kafka:9092 \
+--group hello-group \
+--describe
+```
+
+## kafka-verifiable-producer, consumer.sh
+
+- String 타입 메시지 값을 코드 없이 주고받을 수 있다
+- 간단한 네트워크 통신 테스트를 할 때 유용하다
+
+```bash
+bin/kafka-verifiable-producer.sh --bootstrap-server my-kafka:9092 \
+--max-messages 10 \ # 전송할 데이터 개수 지정, -1로 하면 계속 데이터 전송
+--topic verify-test
+```
+
+```bash
+bin/kafka-verifiable-consumer.sh --bootstrap-server my-kafka:9092 \
+--topic verify-test \
+--group-id test-group
+```
+
+## kafka-delete-records.sh
+
+- 적재된 토픽의 데이터를 지우는 방법
+- 가장 오래된 데이터부터 특정 시점의 오프셋까지 삭제할 수 있다
+
+```json
+// 쿼리할때 사용할 json 파일 생성
+{"partitions": 
+	[{"topic":"test", "partition":0, "offset":50}], 
+	"version":1
+}
+```
+
+```bash
+bin/kafka-delete-records.sh --bootstrap-server my-kafka:9092 \
+--offset-json-file delete-topic.json # 파일 지정
+```
