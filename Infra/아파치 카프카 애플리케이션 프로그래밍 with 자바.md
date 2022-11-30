@@ -321,3 +321,77 @@ bin/kafka-delete-records.sh --bootstrap-server my-kafka:9092 \
 - 마침표와 언더바가 동시에 들어가면 안됨
 - to.pic과 to_pic은 공생 할 수 없음
 
+- 
+
+# 3. 레코드
+- 레코드는 타임스탬프, 메시지 키, 메시지 값, 오프셋 헤더로 구성
+- 한번 적재된 레코드는 수정할 수 없고 로그 리텐션 기간 또는 용량에 따라서만 삭제
+- 타임스탬프는 생성된 시점의 유닉스 타임이 설정
+- 메시지 키는 메시지 값의 종류를 나타내기 위해 사용. 동일한 메시지 키라면 동일한 파티션에 적재
+- 메시지 값에는 실질적으로 처리할 데이터가 들어감
+- 메시지 키와 값은 직렬화되어 전송. 역직렬화는 직렬화와 동일한 형태로 수행
+- 레코드의 오프셋은 0 이상의 숫자로 구성. 직접 지정 불가
+- 헤더는 레코드의 추가적인 정보를 담는 메타데이터 저장소 용도로 사용
+
+## 4.1 프로듀서 API
+- 카프카에 필요한 데이터를 선언하고 브로커의 특정 토픽의 파티션에 전송
+- 프로듀서는 리더 파티션을 가지고 있는 브로커와 직접 통신
+- 직렬화를 통해 자바의 기본형과 참조형뿐만 아니라 동영상, 이미지 같은 바이너리 데이터도 전송 가능
+
+### gradle 설정
+```java
+implementation 'org.apache.kafka:kafka-clients:2.5.0'
+```
+
+### producer sample
+```java
+public class SimpleProducer {
+
+    private final static Logger log = LoggerFactory.getLogger(SimpleProducer.class);
+    private final static String TOPIC_NAME = "test";
+    private final static String BOOTSTRAP_SERVERS = "my-kafka:9092";
+
+    public static void main(String[] args) {
+        Properties configs = new Properties();
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+
+        String messageValue = "testMessage";
+        ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, messageValue);
+        producer.send(record);
+        log.info("{}", record);
+        producer.flush();
+        producer.close();
+    }
+}
+```
+
+### 프로듀서 중요 개념
+- 브로커로 데이터를 전송할 때 내부적으로 파티셔너, 배치 생성 단계를 거침
+- ProducerRecord 인스턴스에 파티션 번호를 직접 지정하거나 타임스탬프 설정, 메시지 키를 설정할 수도 있다
+- send() 메시지에 의해 파티셔너에서 토픽이 어느 파티션으로 전송될 것인지 정함
+- 파티셔너에 의해 구분된 레코드는 전송전 accumulator에 데이터를 버퍼로 쌓음
+- 버퍼로 쌓인 데이터는 배치로 묶어서 전송
+
+### 프로듀서 주요 옵션
+
+**필수 옵션**
+- `bootstrap.servers`: 데이터를 전송할 대상 카프카 클러스터에 속한 브로커의 `호스트 이름:포트`를 1개 이상 작성
+- `key.serializer`: 레코드의 메시지 키를 직렬화하는 클래스를 지정
+- `value.serializer`: 레코드의 메시지 값을 직렬화하는 클래스를 지정
+
+**선택 옵션**
+- `acks`: 프로듀서가 전송한 데이터가 브로커들에 정상적으로 저장되었는지 확인하는데 사용
+    - 0 : 저장 여부와 상관없이 성공으로 판단
+    - 1(default) : 리더 파티션에 데이터가 저장되면 성공으로 판단
+    - -1 : min.insync.replicas 개수에 해당하는 리더 파티션과 팔로워 파티션에 데이터가 저장되면 성공하는 것으로 판단
+- `buffer.memory`: 브로커로 전송할 데이터를 배치로 모으기 위해 설정할 버퍼 메모리양을 지정. 기본값은 32MB
+- `retries`: 재전송을 시도하는 횟수. 기본값은 2147483647
+- `batch.size`: 배치로 전송할 레코드 최대 용량. 기본값은 16384
+- `linger.ms`: 배치를 전송하기 전까지 기다리는 최소 시간. 기본값은 0
+- `partitioner.class`: 레코드를 파티션에 전송할 때 적용하는 파티셔너 클래스를 지정. 기본값은 `DefaultPartitioner`
+- `enable.idempotence`: 멱등성 프로듀서로 동작할지 여부 설정. 기본값은 false
+- `transactional.id`: 프로듀서가 레코드를 전송할 때 레코드를 트랜잭션 단위로 묶을지 여부를 설정
