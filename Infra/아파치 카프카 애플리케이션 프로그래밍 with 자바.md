@@ -377,7 +377,6 @@ public class SimpleProducer {
 - 버퍼로 쌓인 데이터는 배치로 묶어서 전송
 
 ### 프로듀서 주요 옵션
-
 **필수 옵션**
 - `bootstrap.servers`: 데이터를 전송할 대상 카프카 클러스터에 속한 브로커의 `호스트 이름:포트`를 1개 이상 작성
 - `key.serializer`: 레코드의 메시지 키를 직렬화하는 클래스를 지정
@@ -395,3 +394,95 @@ public class SimpleProducer {
 - `partitioner.class`: 레코드를 파티션에 전송할 때 적용하는 파티셔너 클래스를 지정. 기본값은 `DefaultPartitioner`
 - `enable.idempotence`: 멱등성 프로듀서로 동작할지 여부 설정. 기본값은 false
 - `transactional.id`: 프로듀서가 레코드를 전송할 때 레코드를 트랜잭션 단위로 묶을지 여부를 설정
+
+### 메시지 키를 가진 데이터를 전송하는 프로듀서
+- ProducerRecord 생성시에 메시지 키 포함
+
+```java
+ProducerRecord<String, String> record = 
+									new ProducerRecord<>(TOPIC_NAME, "key", messageValue);
+```
+
+### 파티션 직접 지정
+- 토픽 이름, 파티션 번호, 메시지 키, 메시지 값을 순서대로 포함
+
+```java
+int partitionNo = 0;
+ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, partitionNo, "key", messageValue);
+```
+
+### 커스텀 파티셔너 생성
+- 특정 데이터를 가지는 레코드를 특정 파티션을 보내야 할 경우
+
+```java
+public class CustomPartitioner implements Partitioner {
+    
+    @Override
+    public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster) {
+        if (keyBytes == null){
+            throw new InvalidRecordException("Need message key");
+        }
+        
+				// 특정 키를 가진 레코드는 0번 파티션으로 지정
+        if( ((String)key).equals("Pangyo")){ 
+            return 0;
+        }
+
+        List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
+        int numPartitions = partitions.size();
+        return Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void configure(Map<String, ?> configs) {
+
+    }
+}
+```
+
+```java
+Properties configs = new Properties();
+configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+configs.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, CustomPartitioner.class);
+KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+```
+
+### 브로커 정상 전송 여부 확인
+- KafkaProducer의 send() 메서드는 Future 객체를 반환
+- Future 객체를 통해 정상적으로 적재되었는지 확인
+
+```java
+Future<RecordMetadata> result = producer.send(record);
+RecordMetadata metadata = result.get(); // 동기 방식
+log.info("result={}", metadata.toString());
+```
+
+- Callback 설정을 통해 결과 확인도 비동기적으로 처리
+    - 순서가 중요한 경우에는 동기적으로 처리
+
+```java
+public class ProducerCallback implements Callback {
+
+    private final static Logger log = LoggerFactory.getLogger(ProducerCallback.class);
+
+    @Override
+    public void onCompletion(RecordMetadata metadata, Exception e) {
+        if (e != null) {
+            log.error(e.getMessage(), e);
+        } else {
+            log.info(metadata.toString());
+        }
+    }
+}
+```
+
+```java
+producer.send(record, new ProducerCallback());
+```
