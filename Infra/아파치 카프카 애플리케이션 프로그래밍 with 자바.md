@@ -486,3 +486,70 @@ public class ProducerCallback implements Callback {
 ```java
 producer.send(record, new ProducerCallback());
 ```
+
+## 4.2 컨슈머 API
+- 컨슈머는 적재된 데이터를 사용하기 위해 브로커로부터 데이터를 가져와서 필요한 처리를 함
+
+### consumer sample
+```java
+public class SimpleConsumer {
+
+    private final static Logger log = LoggerFactory.getLogger(SimpleConsumer.class);
+    private final static String TOPIC_NAME = "test";
+    private final static String BOOTSTRAP_SERVERS = "my-kafka:9092";
+    private final static String GROUP_ID = "test-group";
+
+    public static void main(String[] args) {
+        Properties configs = new Properties();
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        configs.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+        consumer.subscribe(List.of(TOPIC_NAME));
+
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+            for (ConsumerRecord<String, String> record : records) {
+                log.info("{}", record);
+            }
+        }
+    }
+}
+```
+
+### 컨슈머 중요 개념
+- 데이터를 가져가기 위해 컨슈머를 운영하는 방법
+    - 1개 이상의 컨슈머로 이루어진 컨슈머 그룹을 운영
+    - 토픽의 특정 파티션만 구독하는 컨슈머를 운영
+
+**컨슈머 그룹** 
+- 컨슈머 그룹으로 묶인 컨슈머들은 토픽의 1개 이상 파티션들에 할당
+- 1개의 파티션은 최대 1개의 컨슈머에 할당 가능
+- 1개의 컨슈머는 여러 개의 파티션에 할당 가능
+- 컨슈머 그룹은 다른 컨슈머 그룹과 격리되는 특징을 가짐. 따라서 각기 다른 역할을 하는 컨슈머 그룹끼리 영향을 받지 않게 처리할 수 있음
+- 컨슈머 그룹의 특정 파티션에 장애가 나면 다른 컨슈머에 소유권이 넘어감. 이 과정을 리밸런싱이라 함
+- 컨슈머는 브로커로부터 데이터를 어디까지 가져갔는지 커밋. 브로커 내부 토픽(__consumer**__**offsets)에 저장
+
+### 컨슈머 주요 옵션
+**필수 옵션**
+- `bootstrap.servers`: 데이터를 받아올 브로커의 `호스트 이름:포트`를 1개이상 작성
+- `key.deserializer`: 메시지 키를 역직렬화하는 클래스를 지정
+- `value.deserializer`: 메시지 값을 역직렬화하는 클래스를 지정
+
+**선택 옵션**
+- `group.id`: 컨슈머 그룹 아이디 지정
+- `auto.offset.reset`: 저장된 컨슈머 오프셋이 없는 경우 오프셋 지정.
+    - `latest`: 가장 높은 오프셋 부터
+    - `earliest`: 가장 낮은 오프셋 부터
+    - `none`: 커밋한 기록 이후부터. 없으면 에러
+- `enable.auto.commit`: 자동 커밋 여부
+- `auto.commit.intervals.ms`: 자동 커밋 간격
+- `max.poll.records`: poll() 메서드를 통해 반환되는 레코드 개수
+- `session.timeout.ms`: 해당 시간 내에 하트비트를 전송하지 않으면 브로커는 컨슈머에 이슈가 발생했다고 가정
+- `heartbeat.interval.ms`: 하트비트 전송 간격
+- `max.poll.interval.ms`: poll() 메서드를 호출하는 간격의 최대 시간. 해당 시간이 지나면 비정상으로 판단하고 리밸런싱
+- `isolation.level`: 트랜잭션 프로듀서가 레코드를 트랜잭션 단위로 보낼 경우 사용
+    - `read_committed`: 커밋이 완료된 커밋만 읽음
+    - `read_uncommitted`: 커밋 여부와 관계없이 파티션에 있는 모든 레코드를 읽음
