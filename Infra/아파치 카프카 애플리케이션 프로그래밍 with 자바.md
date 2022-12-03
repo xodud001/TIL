@@ -553,3 +553,52 @@ public class SimpleConsumer {
 - `isolation.level`: 트랜잭션 프로듀서가 레코드를 트랜잭션 단위로 보낼 경우 사용
     - `read_committed`: 커밋이 완료된 커밋만 읽음
     - `read_uncommitted`: 커밋 여부와 관계없이 파티션에 있는 모든 레코드를 읽음
+
+
+### 동기 오프셋 커밋
+- poll() 메서드 호출 이후에 commitSync() 메서드를 호출해서 오프셋 커밋을 명시적으로 수행
+- commitSync()는 poll() 메서드로 받은 가장 마지막 레코드의 오프셋을 기준으로 커밋
+
+```java
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+consumer.subscribe(List.of(TOPIC_NAME));
+
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+    for (ConsumerRecord<String, String> record : records) {
+        log.info("{}", record);
+    }
+    consumer.commitSync();
+}
+```
+
+### 비동기 오프셋 커밋
+- 많은 데이터를 처리하기 위해 비동기 오프셋 커밋 사용
+- commitAsync() 메서드를 호출하여 사용
+- 동기 방식과 같은 기준으로 오프셋을 커밋
+
+```java
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+consumer.subscribe(List.of(TOPIC_NAME));
+
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+    for (ConsumerRecord<String, String> record : records) {
+        log.info("{}", record);
+    }
+    consumer.commitAsync();
+}
+```
+
+- 비동기로 커밋 응답을 받기 때문에 callback 함수를 파라미터로 받아서 결과를 얻을 수 있다
+
+```java
+consumer.commitAsync((offset,  e) -> {
+    if(e != null)
+        System.err.println("Commit failed");
+    else
+        System.out.println("Commit succeeded");
+	  if( e != null)
+        log.error("Commit failed for offsets {}", offset, e);
+});
+```
