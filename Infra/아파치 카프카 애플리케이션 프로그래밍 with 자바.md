@@ -602,3 +602,76 @@ consumer.commitAsync((offset,  e) -> {
         log.error("Commit failed for offsets {}", offset, e);
 });
 ```
+
+### 리밸런스 리스너를 가진 컨슈머
+- 데이터 처리중에 리밸런스가 일어나면 오프셋이 커밋되지 않아서 데이터가 중복으로 처리될 수 있다
+- 리밸런스 발생 시 데이터를 중복 처리하지 않게 하기 위해서는 리밸런스 발생 시 처리한 데이터를 기준으로 커밋을 시도해야 함
+- `ConsumerRebalanceListener` 인터페이스로 리밸런싱 전후로 호출되는 메서드를 지원
+    - `onPartitionAssigned()`: 리밸런스가 끝나고 난 뒤
+    - `onPartitionRevoked()`: 리밸런스가 시작되기 전
+
+```java
+public class RebalancedListener implements ConsumerRebalanceListener{
+
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        log.warn("Partitions are assigned");
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        log.warn("Partitions are revoked");
+    }
+}
+```
+
+```java
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+consumer.subscribe(List.of(TOPIC_NAME), new RebalancedListener());
+```
+
+### 파티션 할당 컨슈머
+- 직접 파티션을 컨슈머에 명시적으로 할당하여 운영 가능
+- 컨슈머가 어떤 토픽, 파티션을 할당할지 명시적으로 선언할 때는 assign() 메서드를 사용
+
+```java
+String TOPIC_NAME = "test";
+int PARTITION_NUMBER = 0;
+
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+consumer.assign(Collections.singleton(
+			new TopicPartition(TOPIC_NAME, PARTITION_NUMBER)
+));
+```
+
+### 컨슈머에 할당된 파티션 확인 방법
+- assignment() 메소드로 컨슈머에 할당된 토피과 파티션 정보 확인
+
+```java
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
+consumer.subscribe(List.of(TOPIC_NAME));
+Set<TopicPartition> assignedTopicPartition = consumer.assignment();
+```
+
+### 컨슈머의 안전한 종료
+- 정상적으로 종료되지 않은 컨슈머는 세션 타임아웃이 발생할때까지 그룹에 남게됨
+- 이로 인해서 컨슈머 랙이 늘어나면 데이터 처리 지연이 발생
+- 컨슈머를 안전하게 종료하기 위해 wakeup() 메서드를 지원
+- 마지막에 close() 메서드를 호출해서 카프카 클러스터에서 컨슈머가 안전하게 종료되었음을 명시적으로 알려줌
+- poll() 메서드가 호출되기 전에 wakeup() 메소드가 호출되면 WakeupException 발생
+```java
+consumer.wakeup();
+
+try {
+    while (true) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+        for (ConsumerRecord<String, String> record : records) {
+            log.info("{}", record);
+        }
+    }    
+}catch (WakeupException e){
+    log.warn("Wakeup consumer");
+}finally {
+    consumer.close();            
+}
+```
