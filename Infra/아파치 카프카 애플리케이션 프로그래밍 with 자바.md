@@ -675,3 +675,50 @@ try {
     consumer.close();            
 }
 ```
+
+## 4.3 어드민 API
+- 내부 옵션들을 설정하거나 조회하기 위해 AdminClient 클래스를 제공
+- 해당 토픽의 파티션 개수 조회, 클러스터의 리소스 접근 권한 규칙 추가, 토픽의 파티션 늘리기 등의 작업을 할 수 있음
+
+```java
+Properties configs = new Properties();
+configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-kafka:9092");
+AdminClient admin = AdminClient.create(configs);
+```
+
+- 주요 메서드
+    - `describeClouster(DescribeClusterOptions options)`: 브로커의 정보 조회
+    - `listTopics(ListTopicsOptions options)`: 토픽 리스트 조회
+    - `listConsumerGroups(ListConsumerGroupsOptions options)`: 컨슈머 그룹 조회
+    - `createTopics(Collection<NewTopic> newTopics, CreateTopicsOptions options)`: 신규 토픽 생성
+    - `createPartitions(Map<String, NewPartitions> newPartitions, CreatePartitionsOptions options)`: 파티션 개수 변경
+    - `createAcls(Collections<AclBinding> acls, CreateAclsOptions options)`: 접근 제어 규칙 생성
+- 어드민 API 사용 후 명시적으로 종료 메서드를 호출하여 리소스가 낭비되지 않도록 한다
+
+```java
+admin.close();
+```
+
+### 브로커 정보 조회
+```java
+Properties configs = new Properties();
+configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-kafka:9092");
+AdminClient admin = AdminClient.create(configs);
+        
+log.info("== Get broker information");
+for (Node node : admin.describeCluster().nodes().get()) {
+    log.info("node: {}", node);
+    ConfigResource cr = new ConfigResource(ConfigResource.Type.BROKER, node.idString());
+    DescribeConfigsResult result = admin.describeConfigs(List.of(cr));
+            
+    result.all().get().forEach((broker, config) -> {
+        config.entries().forEach( configEntry -> log.info(configEntry.name() + "=" + configEntry.value()));
+    });
+}
+```
+
+### 토픽 정보 조회
+```java
+Map<String, TopicDescription> topic = admin.describeTopics(List.of("test")).all().get();
+log.info("{}", topic);
+```
