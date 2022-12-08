@@ -738,3 +738,123 @@ log.info("{}", topic);
     - 스트림 프로세서 : 다른 프로세서가 반환한 데이터를 처리하는 역할
     - 싱크 프로세서 : 데이터를 특정 카프카 토픽으로 저장
 - 프로세서는 스트림즈 DSL과 프로세서 API 2가지 방법으로 개발
+
+## 5.1 스트림즈DSL
+
+- 레코드의 흐름을 추상화한 3가지 개념
+    - KStream
+    - KTable
+    - GlobalKTable
+
+### KStream
+
+- 레코드의 흐름을 표현
+- 메시지 키와 메시지 값으로 구성
+- KStream으로 데이터를 조회하면 존재하는 모든 레코드가 출력
+
+### KTable
+
+- 메시지 키를 기준으로 묶어서 사용
+- 유니크한 메시지 키를 기준으로 가장 최신 레코드를 사용
+- 데이터가 업데이트 되었다고 볼 수 있음
+
+### GlobalKTable
+
+- KTable과 동일하게 메시지 키를 기준으로 묶어서 사용
+- KTable은 1개 파티션이 1개 태스크에 할당, GlobalKTable은 모든 파티션 데이터가 각 태스크에 할당되어 사용
+- 코파티셔닝되지 않은 KStream과 KTable을 조인해서 사용하고 싶다면 KTable 대신 GlobalKTable 사용
+- 로컬 스토리지의 사용량이 증가하고 네트워크, 브로커의 부하가 생기므로 되도록이면 작은 용량의 데이터일 경우에만 사용
+
+### 스트림즈DSL 주요 옵션
+
+**필수 옵션**
+
+- `bootstrap.servers`: 데이터를 전송할 대상 카프카 클러스터에 속한 브로커의 `호스트 이름:포트`를 1개 이상 작성
+- `application.id`: 애플리케이션을 구분하기 위한 고유한 아이디를 설정
+
+**선택 옵션**
+
+- `default.key.serde`: 레코드의 메시지 키를 직렬화, 역직렬화하는 클래스를 지정
+- `default.value.serde`: 레코드의 메시지 값을 직렬화 역직렬화 하는 클래스를 지정
+- `num.stream.threads`: 스트림 프로세싱 실행 시 실행될 스레드 개수를 지정
+- `state.dir`: rocksDB 저장소가 위치할 디렉토리 지정
+
+### 의존성  추가
+
+```groovy
+dependencies {
+    implementation 'org.apache.kafka:kafka-streams:2.5.0'
+}
+```
+
+### 스트림즈DSL - stream(), to()
+
+- stream(): 특정 토픽을 KStream 형태로 가져오기위해 사용
+- to(): KStream의 데이터를 특정 토픽으로 저장하기위해 사용
+
+**예제 코드**
+
+```groovy
+private static final String APPLICATION_NAME = "streams-application";
+private static final String BOOTSTRAP_SERVER = "my-kafka:9092";
+private static final String STREAM_LOG = "stream_log";
+private static final String STREAM_LOG_COPY = "stream_log_copy";
+    
+public static void main(String[] args) {
+
+    Properties props = new Properties();
+    // 애플리케이션 아이디 지정
+	  props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_NAME);
+	  // 카프카 클러스터 연동 정보 입력
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
+    // 메시지 키 직렬화,역직렬화 지정 
+    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+    // 메시지 값 직렬화,역직렬화 지정 
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+    
+    StreamsBuilder builder = new StreamsBuilder();
+    // KStream 생성
+    KStream<String, String> log = builder.stream(STREAM_LOG);
+    // KStream 객체를 다른 토픽으로 전송
+    log.to(STREAM_LOG_COPY);
+
+    // StreamBuilder로 KafkaStream 인스턴스 생성
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+    // 인스턴스 실행
+    streams.start();
+}
+```
+
+**토픽 생성**
+
+```groovy
+bin/kafka-topics.sh --create \
+--bootstrap-server my-kafka:9092 \
+--partitions 3 \
+--topic stream_log
+```
+
+**데이터 프로듀스**
+
+```groovy
+bin/kafka-console-producer.sh \
+--bootstrap-server my-kafka:9092 \ 
+--topic stream_log
+
+>hello
+>kafka
+>stream
+```
+
+**데이터 확인**
+
+```groovy
+bin/kafka-console-consumer.sh \
+--bootstrap-server my-kafka:9092 \
+--topic stream_log_copy \
+--from-beginning
+
+hello
+kafka
+stream
+```
