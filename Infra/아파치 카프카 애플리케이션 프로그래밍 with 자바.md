@@ -858,3 +858,62 @@ hello
 kafka
 stream
 ```
+
+### 스트림즈DSL - filter()
+
+- 특정 조건에 부합하는 데이터만 필터링 가능
+- KStream.filter(producer) 메소드로 필터링
+
+**예제 코드**
+
+```java
+public class StreamsFilter {
+
+    private static final String APPLICATION_NAME = "streams-filter-application";
+    private static final String BOOTSTRAP_SERVER = "my-kafka:9092";
+    private static final String STREAM_LOG = "stream_log";
+		private static final String STREAM_LOG_COPY = "stream_log_filter";
+
+    public static void main(String[] args) {
+        
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_NAME);
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> streamLog = builder.stream(STREAM_LOG);
+        // 길이가 5보다 큰 경우 필터링 하도록 작성
+        KStream<String, String> filteredStream = streamLog.filter(((key, value) -> value.length() > 5));
+        filteredStream.to(STREAM_LOG_COPY);
+
+        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        streams.start();
+    }
+} 
+```
+
+**데이터 프로듀스**
+
+```groovy
+bin/kafka-console-producer.sh \
+--bootstrap-server my-kafka:9092 \ 
+--topic stream_log
+
+>taeyoung
+>hello
+>streams
+```
+
+**데이터 확인**
+
+```groovy
+bin/kafka-console-consumer.sh \
+--bootstrap-server my-kafka:9092 \
+--topic stream_log_copy \
+--from-beginning
+
+taeyoung
+streams
+```
