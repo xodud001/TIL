@@ -95,6 +95,8 @@
 
 ## Blog
 * [Validation - 요청 그렇게 하는거 아닌데](https://velog.io/@xodud001/Validation-%EC%9A%94%EC%B2%AD-%EA%B7%B8%EB%A0%87%EA%B2%8C-%ED%95%98%EB%8A%94%EA%B1%B0-%EC%95%84%EB%8B%8C%EB%8D%B0)
-* [Nginx 설치](https://velog.io/@xodud001/Nginx-%EC%84%A4%EC%B9%98-Docker-CentOS8)
+* nginx 시리즈
+    * [Nginx 설치](https://velog.io/@xodud001/Nginx-%EC%84%A4%EC%B9%98-Docker-CentOS8)
+    * [Nginx Virtual Host 설정](https://velog.io/@xodud001/Nginx%EC%97%90%EC%84%9C-Virtual-Host-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
 ## ETC
 * [oh-my-zsh에서 alias 적용하기 with Mac](./etc/oh-my-zsh%EC%97%90%20alias%20%EB%93%B1%EB%A1%9D%ED%95%98%EA%B8%B0%20with%20Mac.md)
