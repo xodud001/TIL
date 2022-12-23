@@ -98,5 +98,6 @@
 * nginx 시리즈
     * [Nginx 설치](https://velog.io/@xodud001/Nginx-%EC%84%A4%EC%B9%98-Docker-CentOS8)
     * [Nginx Virtual Host 설정](https://velog.io/@xodud001/Nginx%EC%97%90%EC%84%9C-Virtual-Host-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
+    * [Nginx Reverse Proxy 설정](https://velog.io/@xodud001/Nginx%EC%97%90%EC%84%9C-Reverse-Proxy-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
 ## ETC
 * [oh-my-zsh에서 alias 적용하기 with Mac](./etc/oh-my-zsh%EC%97%90%20alias%20%EB%93%B1%EB%A1%9D%ED%95%98%EA%B8%B0%20with%20Mac.md)
