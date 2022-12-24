@@ -960,3 +960,49 @@ public class Client {
 * 캡슐화를 유지하면서 객체 내부 상태를 외부에 저장하는 방법
 * 객체 상태를 외부에 저장했다가 해당 상태로 다시 복구할 수 있음
 
+### 구현 방법
+* 상태를 가진 AClass가 있다
+```java
+public Class AClass {
+
+    private int stateA;
+    private int stateB;
+
+}
+```
+
+* AClass의 상태를 저장하는 메멘토를 생성
+* 상태가 변경되면 안되기 때문에 불편하게 작성
+```java
+public class AMemento{
+
+    private final int stateA;
+    private final int stateB;
+
+    public AMemento(int stateA, int stateB){
+        this.stateA = stateA;
+        this.stateB = stateB;
+    }
+}
+```
+
+* 이후 AClass에서 메멘토를 이용해서 상태를 저장하고 복원하는 기능 생성
+```java
+public class AClass{
+    private int stateA;
+    private int stateB;
+
+    public AMemento save(){
+        return new AMemento(this.stateA, this.stateB);
+    }
+
+    public void restore(AMemento save){
+        this.stateA = save.stateA;
+        this.stateB = save.stateB;
+    }
+}
+```
+
+### 장단점
+**장점**
+* 객체 내부의 상태를 외부에 노출하지 않고도 객체 상태의 스냅샷을 만들 수 있음
