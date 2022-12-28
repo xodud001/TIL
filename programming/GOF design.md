@@ -1006,3 +1006,62 @@ public class AClass{
 ### 장단점
 **장점**
 * 객체 내부의 상태를 외부에 노출하지 않고도 객체 상태의 스냅샷을 만들 수 있음
+
+## 옵저버 패턴
+* 다수의 객체가 특정 객체 상태 변화를 감지하고 알림을 받는 패턴
+* 발행(Pub)-구독(Sub) 패턴을 구현할 수 있다
+
+### 구현 방법
+- 호출 대상이 되는 Observer 인터페이스 생성
+- 실제 동작하는 ConcreteObserver 구현 클래스 생성
+```java
+public interface Observer{
+
+    void handle(String value);
+}
+
+public class ConcreteObserver {
+
+    public void handle(String value){
+        // do something...
+    }
+}
+```
+
+- 외부 동작에 의해 상태 변경이 일어나 Observer를 호출할 주체가 필요
+- 해당 주체(Subject)는 Observer의 List를 가지고 등록, 삭제, 알림 하는 기능이 필요
+```java
+public class Subject{
+
+    private final List<Observer> observers = new ArrayList<>();
+
+    // Observer 등록
+    public void subscribe(Observer observer){
+        this.observers.add(observer);
+    }
+
+    // Observer 삭제
+    public void unsubscribe(Observer observer){
+        this.observer.remove(observer);
+    }
+
+    // Observer에 메시지 전달
+    public void notify(String value){
+        this.observers.forEach(o -> o.handle(value));
+    }
+}
+```
+
+### 장단점
+**장점**
+- 상태를 변경하는 객체와 변경을 감지하는 객체의 관계를 느슨하게 유지
+- Subject의 상태 변경을 주기적으로 조회하지 않고 자동으로 감지할 수 있다
+- 란타임에 옵저버를 추가하거나 제거할 수 있다
+
+**단점**
+- 복잡도 증가
+- 다수의 Observer 객체를 등록 이후 해지하지 않는다면 memory leak이 발생할 수도 있다
+
+
+
+
