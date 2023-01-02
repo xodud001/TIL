@@ -179,3 +179,78 @@ console.log(newArr); // [1, 2, 3, 4, 5, 6]
     - Web APIs : setTimeout에 의해 대기중인 함수 호출을 보관. 이후 Call Stack 영역의 작업은 수행
     - Callback Queue : Web APIs에 대기중이던 함수 중 실행해야 하는 함수를 받아와서 쌓음
     - Event Loop : Callback Queue에 있는 함술흘 Call Stack으로 넘겨줌, Call Stack에 Main Context외에 다른 함수가 없을 때 전달
+
+	# 8. Promise - 콜백 지옥에서 탈출하기
+
+- 자바스크립트에서 비동기 메소드를 처리하는 방식
+- 콜백을 메소드 체이닝으로 처리할 수 있음
+
+## 8.1 비동기 작업이 가질 수 있는 3가지 상태
+
+- 상태 3가지
+    - Pending(대기)
+    - Fulfilled(성공)
+    - Rejected(실패)
+- 상태의 변환
+    - resolve : Pending → Fulfilled
+    - reject : Pending → Rejected
+
+## 8.2 Promise
+
+- `new Promise( (resolve, reject) ⇒ { })`
+    - Promise : 메소드를 비동기로 실행하기 위해 Promise를 생성하기 위한 객체 이름
+    - resolve : Promise가 받는 executor가 실행 성공시 호출되는 메소드
+    - reject : Promise가 받는 executor가 실행 실패시 호출되는 메소드
+- Promise 객체는 메소드 체이닝으로 resolve와 reject의 결과값을 사용할 수 있음
+    - `Promise.then( (res) ⇒ { })` : 해당 체인은 resolve 콜백으로 전달
+    - `Promise.catch( (err) ⇒ { })` : 해당 체인은 reject 콜백으로 전달
+
+```jsx
+function methodA(num) {
+  return new Promise((resolve, reject) => {
+    resolve(num);
+  });
+}
+
+methodA(1).then((res) => {
+  console.log("depth1: " + res);
+});
+```
+
+# 9. async & await
+
+## 9.1. async
+
+- async 키워드를 함수앞에 붙여주면 함수의 타입이 Promise로 변경됨
+
+```jsx
+async function method(){
+	return "hello";
+}
+
+console.log(method()); // Promise {<pending>}
+method().then( (res) => {
+	console.log(res); // hello
+});
+```
+
+## 9.2 await
+
+- 비동기적인 함수를 동기적으로 동작하게 만들어 줌
+
+```jsx
+function delay(ms) {
+	return new Promise( (resolve) => {
+		setTimeout(resolve, ms);
+	}
+}
+
+async function helloAsync() {
+	await delay(3000); // 비동기 함수 앞에 await 키워드를 붙여서 동기적으로 동작
+	return "hello async";
+}
+
+helloAsync().then( (res) => {
+	console.log(res); // 3초뒤에 "hello async" 출력
+};
+```
