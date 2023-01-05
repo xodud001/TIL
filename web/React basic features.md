@@ -218,3 +218,65 @@ const {value1, value2, value3} = value;
     ```
     
 - 내부에 상태가 변경할 때 객체는 똑같이 바뀌더라도 객체 자체가 바뀌기 때문에 무조건 재렌더링됨. 이 문제는 React.memo의 2번째 인자로 props  비교 함수를 만들어서 넘겨주면 객체의 깊은 복사 비교를 수행할 수 있다.
+
+### 7.3. useCallback
+
+- memoization된 callback을 반환
+- 첫번째 인자로 콜백, 두번째 인자로 의존성 배열을 전달
+
+```jsx
+const onCreate = useCallback((author, content, emotion) => {
+    dataId.current += 1;
+    const created_date = new Date().getTime();
+    const newTime = {
+      author,
+      content,
+      emotion,
+      created_date,
+      id: dataId.current,
+    };
+
+    setData( (data) => [newTime, ...data]); // 함수형 업데이트 
+  }, []);
+```
+
+## 8. useReducer
+
+- 상태 변화 로직을 내부 컴포넌트에서 분리할 수 있음
+- 첫번째 인자로 콜백, 두번째 인자로 상태의 기본값을 전달
+    - 콜백 함수는 첫번째 인자로 변경 전의 state와 useRecuder의 반환값중 dispatch 함수의 인자로 넘어오는 파라미터 값을 참조할 수 있는 action을 받고 새로운 상태를 변경
+
+```jsx
+const reducer = (state, action) => {
+  switch(action.type){
+    case 'UP': {
+      return state + 1;
+    }
+    case 'DOWN': {
+      return state - 1;
+    }
+    default:
+      return state
+  }
+}
+
+const Component = () => {
+	const [count, dispatch] = useReducer(reducer, 1);
+
+	const up = () => {
+		dispatch({type: 'UP'})
+	}
+
+	const down = () => {
+		dispatch({type: 'DOWN'})
+	}
+
+	return (
+		<div>
+			<div> {count} </div>
+			<button onClick={up}>+</button>
+			<button onClick={down}>+</button>
+		<div>
+	);
+}
+```
