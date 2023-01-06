@@ -280,3 +280,21 @@ const Component = () => {
 	);
 }
 ```
+
+## 9. Context
+
+- 컴포넌트 트리에 데이터를 공급
+    - 상위 컴포넌트의 상태를 하위 컴포넌트에 전달할때 리프 노드에 가려면 많은 컴포넌트를 지나야한다
+    - 이것을 props drilling이라고 하는데, 이때 사용하지 않는 상태가 컴포넌트를 지나가게 됨
+    - 이런것을 방지하기 위해서 컴포넌트 트리에 `Provider`를 이용해서 `Context`를 만들어 데이터를 공급
+
+### 9.1. Context 생성
+
+- `React.createContext()` 함수를 이용해서 `Context` 생성
+
+```jsx
+const MyContext = React.createContext(defaultValue);
+<MyContext.Provider value={전역으로 전달하고자 하는 값}>
+	{ context 내부의 자식 컴포넌트들 }
+</MyContext.Provier>
+```
