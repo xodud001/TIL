@@ -298,3 +298,11 @@ const MyContext = React.createContext(defaultValue);
 	{ context 내부의 자식 컴포넌트들 }
 </MyContext.Provier>
 ```
+
+## 10. Page Routing
+- Routing은 경로를 선택하는 일련의 과정이다
+- Page Rounting은 어떤 요청에 따라서 어떤 페이지로 응답을 할지 선택하는 일련의 과정
+    - `/home` 경로에는 `home.html`, `/my` 경로에는 `my.html` 파일을 응답하게 함
+- Multi Page Application, MPA: 여러개의 페이지로 이루어진 어플리케이션
+- Single Page Application, SPA: 하나의 페이지로 이루어진 어플리케이션
+- 리액트로 개발된 어플리케이션은 SPA이기 때문에 실제 파일은 하나만 전송하지만 요청 경로에 따라 페이지가 다르게 나오도록 지원되는 라이브러리가 있음
