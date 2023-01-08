@@ -305,4 +305,48 @@ const MyContext = React.createContext(defaultValue);
     - `/home` 경로에는 `home.html`, `/my` 경로에는 `my.html` 파일을 응답하게 함
 - Multi Page Application, MPA: 여러개의 페이지로 이루어진 어플리케이션
 - Single Page Application, SPA: 하나의 페이지로 이루어진 어플리케이션
-- 리액트로 개발된 어플리케이션은 SPA이기 때문에 실제 파일은 하나만 전송하지만 요청 경로에 따라 페이지가 다르게 나오도록 지원되는 라이브러리가 있음
+- Client Side Rendering, CSR: 파일의 렌더링을 클라이언트에서 담당
+- 리액트로 개발된 어플리케이션은 SPA이기 때문에 실제 파일은 하나만 전송하지만 CSR 방식으로 요청 경로에 따라 페이지가 다르게 나오도록 클라이언트에서 렌더링
+
+### 10.1. React Router
+
+- React에서 page routing을 지원하는 라이브러리
+
+[Home v6.6.1](https://reactrouter.com/en/main)
+
+#### 10.1.1 Install
+
+- npm 명령을 이용해서 라이브러리 다운로드
+
+```jsx
+npm install react-router-dom
+```
+
+#### 10.1.2 Example
+
+```jsx
+import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import Home from './pages/Home';
+import New from './pages/New';
+import Edit from './pages/Edit';
+import Diary from './pages/Diary';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/new" element={<New />} />
+          <Route path="/edit" element={<Edit />} />
+          <Route path="/diary" element={<Diary />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
