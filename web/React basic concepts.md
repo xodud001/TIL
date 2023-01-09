@@ -119,4 +119,46 @@ Counter.defaultProps = {
 - 부모의 props가 변경되면 자식 컴포넌트가 재렌더링 됨
     - 부모의 props가 변경되지 않더라도 부모가 재렌더링되면 자식도 재렌더링 됨
 
+## 2.3 Advanced Feature
+
+### 2.3.1. Path Variable
+
+- 경로의 변수를 사용하는 방법
+- `useParam()`
+- `<Route>` 컴포넌트의 `path` 속성 값에 `variable`로 사용할 경로를 지정
+    - `<Route path="/component/:id" element={ <Component/> } />`
+- `<Route>` 컴포넌트의 `element`로 등록된 컴포넌트 내부에서 `useParam()`을 이용해서 `path` 속성에서 콜론과 함께 입력한 `variable`을 가져와서 사용
+    - `const { id } = useParams("id");`
+
+### 2.3.2. Query String
+
+- URL의 Query 컴포넌트를 사용하는 방법
+- `useSearchParams()`
+
+```jsx
+const Component = () => {
+
+	// 첫 번째는 쿼리 파라미터를 가져올 때
+	// 두 번째는 쿼리 파라미터를 수정할 때
+	const [searchParams, setSearchParams] = useSearchParams()
 	
+	const id = searchParams.get("id");
+	const mode = searchParams.get("mode");
+
+	return (...);
+}
+```
+
+### 2.3.3. Page Moving
+
+- 강제로 페이지를 이동시키는 방법
+- `useNavigate()`
+
+```jsx
+const Component = () => {
+	const nav = useNavigate();
+
+	return(	<button onClick={ () => nav("/") }> cancel</button> );
+}
+
+```
